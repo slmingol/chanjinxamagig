@@ -1,4 +1,10 @@
-# Raddle Clone - Word Ladder Puzzle Game
+# Chanjinxamagig - Word Ladder Puzzle Game
+
+![Version](https://img.shields.io/badge/Version-v1.0.0-blue?style=flat)
+![HTML5](https://img.shields.io/badge/HTML5-%23E34F26.svg?style=flat&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-%231572B6.svg?style=flat&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-%23F7DF1E.svg?style=flat&logo=javascript&logoColor=black)
+![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat)
 
 A word ladder puzzle game inspired by Raddle.quest where you transform one word into another by changing one letter at a time.
 
