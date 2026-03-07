@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raddle Clone - Word Ladder Puzzle</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔤 RADDLE</h1>
+            <p class="subtitle">Transform one word into another, one letter at a time</p>
+        </header>
+
+        <div class="game-container">
+            <!-- Puzzle Info -->
+            <div class="puzzle-info">
+                <h2>From <span id="start-word" class="word-highlight">____</span> to <span id="end-word" class="word-highlight">____</span></h2>
+                <div class="puzzle-meta">
+                    <span id="puzzle-date"></span>
+                    <span id="puzzle-theme"></span>
+                </div>
+            </div>
+
+            <!-- Ladder -->
+            <div class="ladder-container">
+                <div id="ladder" class="ladder"></div>
+                <button id="check-btn" class="btn btn-primary">Check Solution</button>
+                <button id="reveal-btn" class="btn btn-secondary">Reveal Answer</button>
+            </div>
+
+            <!-- Clues -->
+            <div class="clues-container">
+                <h3>CLUES, OUT OF ORDER</h3>
+                <div id="clues" class="clues"></div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <button id="new-puzzle-btn" class="btn btn-primary">New Puzzle</button>
+                <button id="clear-btn" class="btn btn-secondary">Clear All</button>
+            </div>
+        </div>
+
+        <!-- Result Modal -->
+        <div id="result-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div id="result-message"></div>
+            </div>
+        </div>
+
+        <footer>
+            <p>A word ladder puzzle game</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
