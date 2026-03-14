@@ -228,8 +228,14 @@ header {
 
 .puzzle-number {
     font-size: 13px;
-    color: var(--text-secondary);
-    margin-bottom: 4px;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    display: inline-block;
+    background: var(--bg-button);
+    border: 1px solid var(--border-secondary);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-weight: 600;
 }
 
 .puzzle-header h2 {
