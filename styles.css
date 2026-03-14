@@ -305,7 +305,7 @@ header {
 .puzzle-main {
     display: grid;
     grid-template-columns: 445px 675px;
-    gap: 20px;
+    gap: 40px;
     margin-bottom: 40px;
 }
 
