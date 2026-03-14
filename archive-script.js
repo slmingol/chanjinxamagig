@@ -135,29 +135,35 @@ function renderPuzzles() {
     
     noResults.style.display = 'none';
     
-    // Group puzzles by month
-    const puzzlesByMonth = {};
+    // Group puzzles by theme
+    const puzzlesByTheme = {};
     filteredPuzzles.forEach((puzzle, index) => {
-        const date = new Date(puzzle.date);
-        const monthKey = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
-        if (!puzzlesByMonth[monthKey]) {
-            puzzlesByMonth[monthKey] = [];
+        const themeKey = puzzle.theme || 'Uncategorized';
+        if (!puzzlesByTheme[themeKey]) {
+            puzzlesByTheme[themeKey] = [];
         }
-        puzzlesByMonth[monthKey].push({ puzzle, index });
+        puzzlesByTheme[themeKey].push({ puzzle, index });
     });
     
-    // Render with month headers
+    // Sort themes by the date of their first puzzle (newest first)
+    const sortedThemes = Object.keys(puzzlesByTheme).sort((a, b) => {
+        const dateA = new Date(puzzlesByTheme[a][0].puzzle.date);
+        const dateB = new Date(puzzlesByTheme[b][0].puzzle.date);
+        return dateB - dateA;
+    });
+    
+    // Render with theme headers
     let html = '';
-    Object.keys(puzzlesByMonth).forEach(monthKey => {
-        const puzzlesInMonth = puzzlesByMonth[monthKey];
+    sortedThemes.forEach(themeKey => {
+        const puzzlesInTheme = puzzlesByTheme[themeKey];
         
         html += `
             <div class="month-section">
-                <h2 class="month-header">${monthKey}</h2>
+                <h2 class="month-header">${themeKey}</h2>
                 <div class="month-grid">
         `;
         
-        puzzlesInMonth.forEach(({ puzzle, index }) => {
+        puzzlesInTheme.forEach(({ puzzle, index }) => {
             const source = puzzle.source || 'scraped';
             const clueCount = puzzle.clues?.length || 0;
             const ladderLength = puzzle.solution?.length || 0;
@@ -175,7 +181,6 @@ function renderPuzzles() {
                             <span>${puzzle.end}</span>
                         </div>
                     </div>
-                    ${puzzle.theme ? `<div class="puzzle-theme">${puzzle.theme}</div>` : ''}
                     <div class="puzzle-stats">
                         ${clueCount > 0 ? `<div class="puzzle-stat">📝 ${clueCount} clues</div>` : ''}
                         ${ladderLength > 0 ? `<div class="puzzle-stat">🪜 ${ladderLength} steps</div>` : ''}
