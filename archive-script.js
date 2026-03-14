@@ -138,7 +138,7 @@ function renderPuzzles() {
     // Group puzzles by theme
     const puzzlesByTheme = {};
     filteredPuzzles.forEach((puzzle, index) => {
-        const themeKey = puzzle.theme || 'Uncategorized';
+        const themeKey = (puzzle.theme && puzzle.theme.trim()) || 'Uncategorized';
         if (!puzzlesByTheme[themeKey]) {
             puzzlesByTheme[themeKey] = [];
         }
@@ -172,7 +172,8 @@ function renderPuzzles() {
         'Movies',
         'Technology',
         'Holidays',
-        'Seasons'
+        'Seasons',
+        'Uncategorized'
     ];
     
     // Sort themes by predefined order, then alphabetically for any new themes
