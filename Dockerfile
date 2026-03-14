@@ -1,9 +1,5 @@
 FROM caddy:alpine
 
-# Version argument
-ARG VERSION=dev
-ENV APP_VERSION=${VERSION}
-
 # Install Node.js, npm, chromium, and dependencies for puppeteer
 RUN apk add --no-cache \
     nodejs \
@@ -39,6 +35,10 @@ COPY script.js /usr/share/caddy/
 COPY cat-climber-logo.png /usr/share/caddy/
 COPY collected-puzzles.json /usr/share/caddy/
 COPY Caddyfile /etc/caddy/Caddyfile
+
+# Version argument - placed here to maximize cache usage for expensive operations above
+ARG VERSION=dev
+ENV APP_VERSION=${VERSION}
 
 # Replace version placeholder in HTML
 RUN sed "s/__VERSION__/${APP_VERSION}/g" /usr/share/caddy/index.html.tmp > /usr/share/caddy/index.html && \

@@ -523,14 +523,14 @@ header {
     margin-bottom: 16px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    padding-bottom: 8px;
+    padding-bottom: 4px;
     border-bottom: 2px solid var(--border-secondary);
 }
 
 .used-clues-heading {
     margin-top: 32px;
     padding-top: 0;
-    padding-bottom: 8px;
+    padding-bottom: 4px;
     border-top: none;
     border-bottom: 2px solid var(--border-secondary);
 }
