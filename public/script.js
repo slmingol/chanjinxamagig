@@ -794,7 +794,7 @@ function processClue(clue) {
         processedClue = processedClue.replace(/\^/g, prevWord);
     }
     
-    // Replace solution words with ____ if they haven't been solved yet
+    // Highlight solved words (but always show all words)
     // Only process middle words (not start/end which are always visible)
     for (let i = 1; i < currentPuzzle.solution.length - 1; i++) {
         const word = currentPuzzle.solution[i];
@@ -806,15 +806,12 @@ function processClue(clue) {
                         userWord.length === word.length &&
                         userWord.toUpperCase() === word.toUpperCase();
         
-        if (!isSolved) {
-            // Replace with blanks
-            const regex = new RegExp(`\\b${word}\\b`, 'gi');
-            processedClue = processedClue.replace(regex, '____');
-        } else {
-            // Highlight solved words with same styling as ladder
+        if (isSolved) {
+            // Highlight solved words
             const regex = new RegExp(`\\b${word}\\b`, 'gi');
             processedClue = processedClue.replace(regex, `<span class="clue-revealed-word">${word}</span>`);
         }
+        // Note: We don't hide unsolved words - they remain visible in clues
     }
     
     return processedClue;
