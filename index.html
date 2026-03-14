@@ -3,43 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chanjinxamagig - Word Ladder Puzzle</title>
+    <title>CAT·CLIMBER - Word Ladder Puzzle</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🔤 CHANJINXAMAGIG</h1>
-            <p class="subtitle">Transform one word into another, one letter at a time</p>
+            <h1 class="logo">
+                <span class="logo-text">CAT</span>
+                <svg class="logo-icon" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Main vertical pole (thicker) -->
+                    <rect x="28" y="12" width="8" height="48" fill="#8B7355" rx="1"/>
+                    
+                    <!-- Top platform -->
+                    <rect x="18" y="10" width="28" height="5" fill="#A0826D" rx="2"/>
+                    <rect x="20" y="15" width="24" height="2" fill="#A0826D" opacity="0.6"/>
+                    
+                    <!-- Middle platform (where cat sleeps) -->
+                    <rect x="16" y="32" width="32" height="5" fill="#A0826D" rx="2"/>
+                    <rect x="18" y="37" width="28" height="2" fill="#A0826D" opacity="0.6"/>
+                    
+                    <!-- Bottom/base platform (widest) -->
+                    <rect x="14" y="54" width="36" height="6" fill="#A0826D" rx="2"/>
+                    <rect x="16" y="60" width="32" height="2" fill="#A0826D" opacity="0.6"/>
+                    
+                    <!-- Ladder rungs between platforms -->
+                    <rect x="26" y="20" width="12" height="2" fill="#6B5A42" rx="0.5"/>
+                    <rect x="26" y="26" width="12" height="2" fill="#6B5A42" rx="0.5"/>
+                    <rect x="26" y="42" width="12" height="2" fill="#6B5A42" rx="0.5"/>
+                    <rect x="26" y="48" width="12" height="2" fill="#6B5A42" rx="0.5"/>
+                    
+                    <!-- Cat body (laying down horizontally on middle platform) -->
+                    <ellipse cx="32" cy="32" rx="10" ry="5" fill="#FF9B5A"/>
+                    
+                    <!-- Cat head (laying sideways) -->
+                    <ellipse cx="42" cy="31" rx="5" ry="5.5" fill="#FF9B5A"/>
+                    
+                    <!-- Ear (one visible, laying flat) -->
+                    <path d="M44 27 L47 25 L45 29 Z" fill="#FF9B5A"/>
+                    <path d="M44 28 L46 26 L45 29 Z" fill="#FFB380"/>
+                    
+                    <!-- Closed sleepy eyes (contented) -->
+                    <path d="M40 30.5 Q41 31 42 30.5" stroke="#2C1810" stroke-width="1" fill="none" stroke-linecap="round"/>
+                    <path d="M43 30.5 Q44 31 45 30.5" stroke="#2C1810" stroke-width="1" fill="none" stroke-linecap="round"/>
+                    
+                    <!-- Cute nose -->
+                    <circle cx="42" cy="33" r="0.8" fill="#FF6B6B"/>
+                    
+                    <!-- Peaceful smile -->
+                    <path d="M40 34 Q42 35 44 34" stroke="#2C1810" stroke-width="0.6" fill="none" stroke-linecap="round"/>
+                    
+                    <!-- Front paws (tucked in) -->
+                    <ellipse cx="36" cy="34" rx="2" ry="2.5" fill="#FF9B5A"/>
+                    <ellipse cx="38" cy="35" rx="2" ry="2.5" fill="#FF9B5A"/>
+                    
+                    <!-- Paw pads -->
+                    <circle cx="36" cy="35" r="0.6" fill="#FFB380"/>
+                    <circle cx="38" cy="36" r="0.6" fill="#FFB380"/>
+                    
+                    <!-- Tail (curled around body) -->
+                    <path d="M22 32 Q18 32 16 30 Q15 28 16 26" stroke="#FF9B5A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    
+                    <!-- Whiskers -->
+                    <line x1="42" y1="32" x2="48" y2="31" stroke="#2C1810" stroke-width="0.4" opacity="0.5"/>
+                    <line x1="42" y1="33" x2="48" y2="33" stroke="#2C1810" stroke-width="0.4" opacity="0.5"/>
+                    <line x1="42" y1="34" x2="48" y2="35" stroke="#2C1810" stroke-width="0.4" opacity="0.5"/>
+                    
+                    <!-- Sleeping Z's -->
+                    <text x="48" y="26" font-family="Arial, sans-serif" font-size="6" fill="rgba(255,255,255,0.6)" font-weight="bold">z</text>
+                    <text x="51" y="23" font-family="Arial, sans-serif" font-size="5" fill="rgba(255,255,255,0.5)" font-weight="bold">z</text>
+                </svg>
+                <span class="logo-text">CLIMBER</span>
+            </h1>
+            <button id="help-btn" class="help-btn" title="How to Play">?</button>
+            <button id="stats-btn" class="stats-btn" title="Statistics">📊</button>
+            <button id="theme-btn" class="theme-btn" title="Theme">🌓</button>
+            <button id="admin-btn" class="admin-btn" title="Admin Panel">⚙️</button>
         </header>
 
         <div class="game-container">
             <!-- Puzzle Info -->
-            <div class="puzzle-info">
-                <h2>From <span id="start-word" class="word-highlight">____</span> to <span id="end-word" class="word-highlight">____</span></h2>
-                <div class="puzzle-meta">
-                    <span id="puzzle-date"></span>
-                    <span id="puzzle-theme"></span>
+            <div class="puzzle-header">
+                <div class="puzzle-number"><span id="puzzle-theme"></span></div>
+                <h2>From <span id="start-word">____</span> to <span id="end-word">____</span></h2>
+                <div class="puzzle-nav">
+                    <button id="prev-puzzle-btn" class="nav-arrow">←</button>
+                    <span id="puzzle-date" class="puzzle-date"></span>
+                    <button id="next-puzzle-btn" class="nav-arrow">→</button>
                 </div>
             </div>
 
-            <!-- Ladder -->
-            <div class="ladder-container">
-                <div id="ladder" class="ladder"></div>
-                <button id="check-btn" class="btn btn-primary">Check Solution</button>
-                <button id="reveal-btn" class="btn btn-secondary">Reveal Answer</button>
+            <!-- Victory Section (hidden by default) -->
+            <div id="victory-section" class="victory-section" style="display: none;">
+                <div id="victory-content" class="victory-content"></div>
             </div>
 
-            <!-- Clues -->
-            <div class="clues-container">
-                <h3>CLUES, OUT OF ORDER</h3>
-                <div id="clues" class="clues"></div>
+            <!-- Main content -->
+            <div class="puzzle-main">
+                <!-- Ladder -->
+                <div class="ladder-section">
+                    <div class="ladder-container">
+                        <div id="letter-count-indicator" class="letter-count-indicator" style="display: none;"></div>
+                        <div id="ladder" class="ladder"></div>
+                    </div>
+                    <div class="solve-direction">Switch to solving ↑ upwards</div>
+                </div>
+
+                <!-- Clues -->
+                <div class="clues-section">
+                    <h3>Clues, out of order</h3>
+                    <div id="clues" class="clues"></div>
+                    <h3 id="used-clues-heading" class="used-clues-heading" style="display: none;">Used clues</h3>
+                    <div id="used-clues" class="used-clues"></div>
+                    
+                    <!-- About Section -->
+                    <div class="about-section">
+                        <h3 class="about-heading">About this CAT·CLIMBER</h3>
+                        <div id="about-content" class="about-content"></div>
+                    </div>
+                </div>
             </div>
 
             <!-- Controls -->
-            <div class="controls">
-                <button id="new-puzzle-btn" class="btn btn-primary">New Puzzle</button>
-                <button id="clear-btn" class="btn btn-secondary">Clear All</button>
+            <div class="game-controls">
+                <button id="check-btn" class="btn">Check Solution</button>
+                <button id="reveal-btn" class="btn">Reveal Answer</button>
+                <button id="clear-btn" class="btn">Clear</button>
             </div>
         </div>
 
@@ -51,12 +140,225 @@
             </div>
         </div>
 
+        <!-- Stats Modal -->
+        <div id="stats-modal" class="modal">
+            <div class="modal-content stats-modal-content">
+                <span class="close-stats">&times;</span>
+                <h2>📊 Your Statistics</h2>
+                
+                <div class="stats-section">
+                    <h3>Overall Stats</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-played">0</div>
+                            <div class="stat-label">Played</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-completed">0</div>
+                            <div class="stat-label">Completed</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-completion-rate">0%</div>
+                            <div class="stat-label">Win Rate</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-current-streak">0</div>
+                            <div class="stat-label">Current Streak</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stats-section">
+                    <h3>Puzzle Performance</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-perfect-games">0</div>
+                            <div class="stat-label">Perfect Games</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-avg-hints">0</div>
+                            <div class="stat-label">Avg Hints</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-best-streak">0</div>
+                            <div class="stat-label">Best Streak</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-total-hints">0</div>
+                            <div class="stat-label">Total Hints</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stats-section">
+                    <h3>Game Progress</h3>
+                    <div class="progress-info">
+                        <p>Current Puzzle: <strong id="current-puzzle-info">#1</strong></p>
+                        <p>Last Played: <strong id="last-played-info">Never</strong></p>
+                    </div>
+                </div>
+                
+                <div class="stats-section">
+                    <button id="reset-stats-btn" class="btn-small" style="background: rgba(244, 67, 54, 0.3); border-color: rgba(244, 67, 54, 0.5);">
+                        Reset All Statistics
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Modal -->
+        <div id="admin-modal" class="modal">
+            <div class="modal-content admin-modal-content">
+                <span class="close-admin">&times;</span>
+                <h2>Admin Panel</h2>
+                
+                <div class="admin-section">
+                    <h3>Collection Status</h3>
+                    <div id="collection-stats">
+                        <p>Loading...</p>
+                    </div>
+                </div>
+                
+                <div class="admin-section">
+                    <h3>Scrape Puzzles</h3>
+                    <div class="scrape-form">
+                        <label>
+                            Start Date:
+                            <input type="date" id="scrape-start-date" value="2025-02-25">
+                        </label>
+                        <label>
+                            Number of Days:
+                            <input type="number" id="scrape-days" value="182" min="1" max="365">
+                        </label>
+                        <div class="scrape-command-output">
+                            <p><strong>Run this command in terminal:</strong></p>
+                            <code id="scrape-command">node scraper.js batch 2025-02-25 182</code>
+                            <button id="copy-command-btn" class="btn-small">Copy</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="admin-section">
+                    <h3>Load Collected Puzzles</h3>
+                    <p class="admin-note">To load scraped puzzles into the game, copy puzzles from <code>collected-puzzles.json</code> to the PUZZLES array in <code>script.js</code>.</p>
+                    <button id="show-import-btn" class="btn">Show Import Instructions</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hint Confirmation Modal -->
+        <div id="hint-modal" class="modal" tabindex="-1">
+            <div class="modal-content hint-modal-content">
+                <h3>Reveal clue?</h3>
+                <p>This will reveal which clue is needed for this step of the ladder.</p>
+                <div class="modal-buttons">
+                    <button id="hint-ok-btn" class="btn">OK</button>
+                    <button id="hint-cancel-btn" class="btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- How to Play Modal -->
+        <div id="how-to-play-modal" class="modal">
+            <div class="modal-content how-to-play-content">
+                <span class="close-how-to-play">&times;</span>
+                <h2>How to Play</h2>
+                
+                <div class="how-to-section">
+                    <h3>What is a Word Ladder?</h3>
+                    <p>A word ladder is a puzzle where you transform one word into another by changing one letter at a time. Each step must be a valid word.</p>
+                    <p>For example, to get from <strong>CAT</strong> to <strong>DOG</strong>:</p>
+                    <div style="margin: 12px 0; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 4px; font-family: monospace;">
+                        CAT → <strong>C</strong>OT → <strong>D</strong>OT → DOG
+                    </div>
+                </div>
+
+                <div class="how-to-section">
+                    <h3>How to Solve</h3>
+                    <ol>
+                        <li><strong>Read the clues</strong> - They're shown out of order on the right side</li>
+                        <li><strong>Fill in the ladder</strong> - Type words into the empty rungs</li>
+                        <li><strong>Each word must differ by exactly one letter</strong> from the word above it</li>
+                        <li><strong>Use hints sparingly</strong> - Click the 💡 button to reveal which clue applies to that rung</li>
+                        <li><strong>Check your solution</strong> - When complete, see your path and share your results!</li>
+                    </ol>
+                </div>
+
+                <div class="how-to-section">
+                    <h3>Tips</h3>
+                    <ul>
+                        <li>Clues reference words you've already solved using <code>____</code> for unsolved words</li>
+                        <li>The letter change indicator (like <code>E→O</code>) appears after you solve each word</li>
+                        <li>Try to solve without hints for a better completion percentage!</li>
+                        <li>Use the ← → arrows to navigate between different puzzles</li>
+                    </ul>
+                </div>
+
+                <div class="how-to-section">
+                    <h3>Keyboard Shortcuts</h3>
+                    <ul>
+                        <li><code>↑</code> / <code>↓</code> - Navigate between ladder rungs</li>
+                        <li><code>H</code> - Show hint for current rung (press H or Enter again to confirm)</li>
+                        <li><code>Enter</code> - Move to next rung or confirm hint</li>
+                        <li><code>Escape</code> - Close hint dialog</li>
+                    </ul>
+                </div>
+
+                <div class="how-to-section">
+                    <h3>About CAT·CLIMBER</h3>
+                    <p>CAT·CLIMBER is inspired by <a href="https://raddle.quest" target="_blank">Raddle.quest</a> by The Mystery League. It's a daily word ladder puzzle game where cats climb their way from one word to another!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Welcome Modal (first visit) -->
+        <div id="welcome-modal" class="modal" style="display: none;">
+            <div class="modal-content welcome-modal-content">
+                <span class="close-welcome">&times;</span>
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="catclimber-logo.png" alt="CAT·CLIMBER" style="max-width: 300px; width: 100%; height: auto; border-radius: 8px;">
+                </div>
+                <h2 style="text-align: center; margin-bottom: 20px;">Welcome to CAT·CLIMBER!</h2>
+                
+                <div class="how-to-section">
+                    <h3>What is a Word Ladder?</h3>
+                    <p>Transform one word into another by changing one letter at a time. Each step must be a valid word.</p>
+                    <p style="text-align: center; margin: 12px 0; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 4px; font-family: monospace;">
+                        CAT → <strong>C</strong>OT → <strong>D</strong>OT → DOG
+                    </p>
+                </div>
+
+                <div class="how-to-section">
+                    <h3>Quick Start</h3>
+                    <ul>
+                        <li>Type words into the empty ladder rungs</li>
+                        <li>Each word must differ by exactly one letter from the word above</li>
+                        <li>Use clues (shown out of order) to help find your path</li>
+                        <li>Click the 💡 hint button when you need help</li>
+                        <li>Use keyboard shortcuts: ↑/↓ to navigate, H for hints</li>
+                    </ul>
+                </div>
+
+                <div style="margin-top: 24px; text-align: center;">
+                    <label style="display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; margin-bottom: 16px;">
+                        <input type="checkbox" id="dont-show-welcome" style="cursor: pointer;">
+                        <span>Don't show this again</span>
+                    </label>
+                    <button id="start-playing-btn" class="btn" style="font-size: 16px; padding: 12px 32px;">
+                        Start Playing!
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <footer>
-            <p>A word ladder puzzle game</p>
+            <p>
+                Inspired by <a href="https://raddle.quest" target="_blank">Raddle.quest</a> by The Mystery League
+            </p>
         </footer>
     </div>
 
-    <div class="version-number">v1.0.1</div>
+    <div class="app-version">v__VERSION__</div>
 
     <script src="script.js"></script>
 </body>

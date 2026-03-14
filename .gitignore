@@ -1,0 +1,40 @@
+# Node modules
+node_modules/
+
+# Logs
+*.log
+scraper*.log
+scrape-*.log
+
+# Debug files
+debug-*.png
+debug-*.js
+post-modal-*.png
+dump-*.txt
+
+# Temporary files
+*.tmp
+*.temp
+
+# Test files
+test-*.js
+quick-debug.js
+inspect-*.js
+extract-*.js
+find-*.js
+get-html.js
+full-dump.js
+retry-*.js
+
+# Data files (keep puzzles)
+puzzle.json
+
+# MacOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

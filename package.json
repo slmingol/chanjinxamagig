@@ -1,0 +1,13 @@
+{
+  "name": "catclimber",
+  "version": "1.0.1",
+  "description": "Word ladder puzzle game with automatic daily puzzle collection",
+  "main": "script.js",
+  "scripts": {
+    "scrape": "node scraper.js",
+    "daily": "node daily-scraper.js"
+  },
+  "dependencies": {
+    "puppeteer": "^24.39.1"
+  }
+}
