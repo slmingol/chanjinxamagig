@@ -1126,12 +1126,14 @@ header {
     
     .ladder-word-text {
         font-size: 16px;
-        padding: 10px 8px;
+        padding: 12px 8px;
+        line-height: 1.2;
     }
     
     .ladder-input {
         font-size: 16px;
-        padding: 10px 8px;
+        padding: 12px 8px;
+        line-height: 1.2;
     }
     
     .hint-btn {
