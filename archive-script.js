@@ -148,13 +148,17 @@ function renderPuzzles() {
     // Define category order matching raddle.quest archive
     const categoryOrder = [
         'Best Picture nominees',
+        'Thanksgiving',
+        '7x7',
         'Opposites',
         'Light vs Dark',
         'Temperature',
         'Speed',
         'Emotions',
         'Colors',
-        'Weather',
+        '
+
+Weather',
         'Astronomy',
         'Metals',
         'Food',
@@ -162,7 +166,15 @@ function renderPuzzles() {
         'Economics',
         'Safety',
         'Life Balance',
-        'Word Transformations'
+        'Word Transformations',
+        'Sports',
+        'Geography',
+        'Animals',
+        'Music',
+        'Movies',
+        'Technology',
+        'Holidays',
+        'Seasons'
     ];
     
     // Sort themes by predefined order, then alphabetically for any new themes
