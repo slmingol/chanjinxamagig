@@ -1131,3 +1131,16 @@ footer a:hover {
 .app-version:hover {
     opacity: 0.6;
 }
+
+/* Completed/Read-only Input State */
+.ladder-input.completed {
+    background-color: var(--correct-bg);
+    border-color: var(--correct);
+    cursor: not-allowed;
+    opacity: 0.9;
+}
+
+.ladder-input.completed:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--correct);
+}

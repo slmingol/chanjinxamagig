@@ -625,11 +625,18 @@ function renderLadder() {
             input.dataset.index = index;
             input.value = userSolution[index] || '';
             
+            // Check if this word is already completed
+            const isCompleted = userSolution[index] && userSolution[index].length === word.length;
+            
             // Only enable input if it's adjacent to a filled word
             if (!isRungAccessible(index)) {
                 input.disabled = true;
                 input.style.opacity = '0.4';
                 input.style.cursor = 'not-allowed';
+            } else if (isCompleted) {
+                // Make completed words read-only
+                input.readOnly = true;
+                input.classList.add('completed');
             }
             
             // Create placeholder with emoji boxes
@@ -881,6 +888,10 @@ function handleInput(e) {
         
         // Save state after updating usedClues
         saveGameState();
+        
+        // Make this input read-only after completion
+        e.target.readOnly = true;
+        e.target.classList.add('completed');
         
         // Small delay to let user see their completed word before re-render
         setTimeout(() => {
