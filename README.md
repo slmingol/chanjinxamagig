@@ -1,7 +1,7 @@
 # CAT·CLIMBER - Word Ladder Puzzle Game
 
 <p align="center">
-  <img src="cat-climber-logo.png" alt="CAT·CLIMBER Logo" width="480">
+  <img src="public/cat-climber-logo.png" alt="CAT·CLIMBER Logo" width="480">
 </p>
 
 ![Version](https://img.shields.io/badge/Version-v1.1.68-blue?style=flat)
