@@ -290,6 +290,7 @@ let revealedHintIndex = null;
 let usedClues = [];
 let hintsUsed = []; // Track which steps used hints
 let shuffledCluesOrder = []; // Store shuffled clue order for current puzzle
+let lockedWords = new Set(); // Track which word indices are locked after completion
 
 // Elements
 const startWordEl = document.getElementById('start-word');
@@ -393,6 +394,7 @@ function saveGameState() {
         hintsUsed: hintsUsed,
         usedClues: usedClues,
         shuffledCluesOrder: shuffledCluesOrder,
+        lockedWords: Array.from(lockedWords), // Convert Set to Array for JSON
         lastSaved: new Date().toISOString()
     };
     localStorage.setItem('catclimber-game-state', JSON.stringify(state));
@@ -480,6 +482,7 @@ function initGame() {
             hintsUsed = savedState.hintsUsed || [];
             usedClues = savedState.usedClues || [];
             shuffledCluesOrder = savedState.shuffledCluesOrder || [];
+            lockedWords = new Set(savedState.lockedWords || []); // Restore locked words
         }
         
         // Now load saved puzzle (it will use the restored state)
@@ -504,6 +507,7 @@ function loadPuzzle(index, isRestoring = false) {
         revealedHintIndex = null;
         usedClues = [];
         hintsUsed = [];
+        lockedWords.clear(); // Clear locked words for new puzzle
         
         // Shuffle clues once for this puzzle
         shuffledCluesOrder = [...currentPuzzle.clues].sort(() => Math.random() - 0.5);
@@ -625,16 +629,16 @@ function renderLadder() {
             input.dataset.index = index;
             input.value = userSolution[index] || '';
             
-            // Check if this word is already completed
-            const isCompleted = userSolution[index] && userSolution[index].length === word.length;
+            // Check if this word has been locked
+            const isLocked = lockedWords.has(index);
             
             // Only enable input if it's adjacent to a filled word
             if (!isRungAccessible(index)) {
                 input.disabled = true;
                 input.style.opacity = '0.4';
                 input.style.cursor = 'not-allowed';
-            } else if (isCompleted) {
-                // Make completed words read-only
+            } else if (isLocked) {
+                // Make locked words read-only
                 input.readOnly = true;
                 input.classList.add('completed');
             }
@@ -888,6 +892,9 @@ function handleInput(e) {
         
         // Save state after updating usedClues
         saveGameState();
+        
+        // Lock this word permanently
+        lockedWords.add(index);
         
         // Make this input read-only after completion
         e.target.readOnly = true;
@@ -1149,6 +1156,7 @@ function clearAll() {
     // Clear revealed hint and used clues
     revealedHintIndex = null;
     usedClues = [];
+    lockedWords.clear(); // Clear locked words
     renderClues();
     renderLadder();
     
