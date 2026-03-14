@@ -135,32 +135,62 @@ function renderPuzzles() {
     
     noResults.style.display = 'none';
     
-    grid.innerHTML = filteredPuzzles.map((puzzle, index) => {
-        const source = puzzle.source || 'scraped';
-        const clueCount = puzzle.clues?.length || 0;
-        const ladderLength = puzzle.solution?.length || 0;
+    // Group puzzles by month
+    const puzzlesByMonth = {};
+    filteredPuzzles.forEach((puzzle, index) => {
+        const date = new Date(puzzle.date);
+        const monthKey = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+        if (!puzzlesByMonth[monthKey]) {
+            puzzlesByMonth[monthKey] = [];
+        }
+        puzzlesByMonth[monthKey].push({ puzzle, index });
+    });
+    
+    // Render with month headers
+    let html = '';
+    Object.keys(puzzlesByMonth).forEach(monthKey => {
+        const puzzlesInMonth = puzzlesByMonth[monthKey];
         
-        return `
-            <div class="puzzle-card" onclick="openPuzzle(${index})">
-                <div class="puzzle-card-header">
-                    <div class="puzzle-date">${formatDate(puzzle.date)}</div>
-                    <div class="puzzle-source ${source}">${source}</div>
-                </div>
-                <div class="puzzle-words">
-                    <div class="puzzle-transform">
-                        <span>${puzzle.start}</span>
-                        <span class="puzzle-arrow">→</span>
-                        <span>${puzzle.end}</span>
+        html += `
+            <div class="month-section">
+                <h2 class="month-header">${monthKey}</h2>
+                <div class="month-grid">
+        `;
+        
+        puzzlesInMonth.forEach(({ puzzle, index }) => {
+            const source = puzzle.source || 'scraped';
+            const clueCount = puzzle.clues?.length || 0;
+            const ladderLength = puzzle.solution?.length || 0;
+            
+            html += `
+                <div class="puzzle-card" onclick="openPuzzle(${index})">
+                    <div class="puzzle-card-header">
+                        <div class="puzzle-date">${formatDate(puzzle.date)}</div>
+                        <div class="puzzle-source ${source}">${source}</div>
+                    </div>
+                    <div class="puzzle-words">
+                        <div class="puzzle-transform">
+                            <span>${puzzle.start}</span>
+                            <span class="puzzle-arrow">→</span>
+                            <span>${puzzle.end}</span>
+                        </div>
+                    </div>
+                    ${puzzle.theme ? `<div class="puzzle-theme">${puzzle.theme}</div>` : ''}
+                    <div class="puzzle-stats">
+                        ${clueCount > 0 ? `<div class="puzzle-stat">📝 ${clueCount} clues</div>` : ''}
+                        ${ladderLength > 0 ? `<div class="puzzle-stat">🪜 ${ladderLength} steps</div>` : ''}
                     </div>
                 </div>
-                ${puzzle.theme ? `<div class="puzzle-theme">${puzzle.theme}</div>` : ''}
-                <div class="puzzle-stats">
-                    ${clueCount > 0 ? `<div class="puzzle-stat">📝 ${clueCount} clues</div>` : ''}
-                    ${ladderLength > 0 ? `<div class="puzzle-stat">🪜 ${ladderLength} steps</div>` : ''}
+            `;
+        });
+        
+        html += `
                 </div>
             </div>
         `;
-    }).join('');
+    });
+    
+    grid.innerHTML = html;
 }
 
 function formatDate(dateStr) {

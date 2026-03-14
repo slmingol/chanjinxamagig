@@ -114,10 +114,32 @@
 }
 
 .archive-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    margin-bottom: 40px;
+}
+
+.month-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.month-header {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border-secondary);
+    font-family: "chivo", sans-serif;
+}
+
+.month-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 16px;
-    margin-bottom: 40px;
 }
 
 .puzzle-card {
@@ -255,7 +277,11 @@
         flex: 1;
     }
     
-    .archive-grid {
+    .month-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .month-header {
+        font-size: 20px;
     }
 }
