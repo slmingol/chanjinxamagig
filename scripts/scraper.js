@@ -159,32 +159,46 @@ async function scrapePuzzleByDate(dateStr) {
         await page.goto(url, { waitUntil: 'networkidle0', timeout: 30000 });
         await new Promise(resolve => setTimeout(resolve, 3000));
         
-        // Try to click "Show full ladder" or reveal button to get the solution
+        // Try to click "Show full ladder" button using proper Puppeteer methods
         try {
             console.log('  Looking for reveal button...');
             
-            // Wait for and click the "Show full ladder" button
-            const clicked = await page.evaluate(() => {
-                // Find all buttons and links
-                const elements = Array.from(document.querySelectorAll('button, a, div[role="button"], span'));
-                for (const el of elements) {
-                    const text = el.textContent.toLowerCase();
-                    if (text.includes('show full ladder') || 
-                        text.includes('reveal') || 
-                        text.includes('show answer') ||
-                        text.includes('solution')) {
-                        el.click();
-                        return true;
-                    }
-                }
-                return false;
-            });
+            // Method 1: Try to find button by text content using XPath
+            const buttons = await page.$x("//button[contains(text(), 'Show full ladder')] | //a[contains(text(), 'Show full ladder')] | //div[contains(text(), 'Show full ladder')]");
             
-            if (clicked) {
+            if (buttons.length > 0) {
+                console.log(`  Found ${buttons.length} potential reveal buttons`);
+                await buttons[0].click();
                 console.log('  Clicked reveal button, waiting for solution...');
-                await new Promise(resolve => setTimeout(resolve, 3000)); // Wait longer for solution to appear
+                await new Promise(resolve => setTimeout(resolve, 4000));
             } else {
-                console.log('  No reveal button found');
+                console.log('  No "Show full ladder" button found, trying alternate methods...');
+                
+                // Method 2: Try clicking any element with relevant text
+                const clicked = await page.evaluate(() => {
+                    const elements = Array.from(document.querySelectorAll('*'));
+                    for (const el of elements) {
+                        const text = el.textContent;
+                        if (text && (text.includes('Show full ladder') || text.includes('Reveal answer'))) {
+                            // Try to find the clickable parent
+                            let clickable = el;
+                            while (clickable && clickable.tagName !== 'BUTTON' && clickable.tagName !== 'A') {
+                                clickable = clickable.parentElement;
+                                if (!clickable) clickable = el;
+                            }
+                            clickable.click();
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+                
+                if (clicked) {
+                    console.log('  Clicked via fallback method, waiting...');
+                    await new Promise(resolve => setTimeout(resolve, 4000));
+                } else {
+                    console.log('  Could not find any reveal button');
+                }
             }
         } catch (e) {
             console.log(`  Error clicking reveal: ${e.message}`);
@@ -218,11 +232,11 @@ async function scrapePuzzleByDate(dateStr) {
             const themeMatch = fullText.match(/Raddle #\d+\s+([^\n]+?)(?:\s+From|$)/);
             if (themeMatch) data.theme = themeMatch[1].trim();
             
-            // Extract solution ladder - look for filled inputs or revealed words
-            // First try to find input elements with values
+            // Extract solution ladder - comprehensive extraction
             const inputs = Array.from(document.querySelectorAll('input[type="text"], input:not([type])'));
             const solutionWords = [];
             
+            // Method 1: Extract from input values
             inputs.forEach(input => {
                 const value = input.value.trim().toUpperCase();
                 if (value && value.length >= 2 && /^[A-Z\s']+$/.test(value)) {
@@ -230,45 +244,81 @@ async function scrapePuzzleByDate(dateStr) {
                 }
             });
             
-            // If we got solution words from inputs, use them
-            if (solutionWords.length >= 2) {
-                data.solution = solutionWords;
-            } else {
-                // Try to extract from page text - look for ladder structure
-                // The ladder appears as words in sequence after clicking reveal
-                const textContent = document.body.textContent;
-                
-                // Look for pattern like "WORD1 WORD2 WORD3" between start and end
+            // Method 2: Extract from input placeholders (revealed state)
+            if (solutionWords.length < 2) {
+                inputs.forEach(input => {
+                    const placeholder = input.placeholder?.trim().toUpperCase();
+                    if (placeholder && placeholder.length >= 2 && /^[A-Z\s']+$/.test(placeholder)) {
+                        solutionWords.push(placeholder);
+                    }
+                });
+            }
+            
+            // Method 3: Look for divs/spans containing ladder words (revealed state)
+            if (solutionWords.length < 2) {
+                const allText = document.body.textContent;
+                // Find the ladder section (between start and end words with other words in between)
                 if (data.start && data.end) {
-                    // Extract words that appear in ladder context
-                    const ladderSection = textContent.match(new RegExp(
-                        data.start + '[\\s\\S]{0,500}?' + data.end, 'i'
-                    ));
-                    
-                    if (ladderSection) {
-                        // Find all uppercase words in this section
-                        const words = ladderSection[0].match(/\b[A-Z]{2,}[A-Z\s']*\b/g) || [];
-                        const uniqueWords = [...new Set(words)].filter(w => 
-                            w.length >= data.start.length && 
-                            w !== 'BATTLE' || words.indexOf(w) === words.lastIndexOf(w) // Keep if not duplicate or is start/end
-                        );
+                    // Look for pattern: START WORD1 WORD2 ... END
+                    const escapedStart = data.start.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const escapedEnd = data.end.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const ladderPattern = new RegExp(
+                        escapedStart + '\\s+([A-Z][A-Z\\s\']*?)\\s+' + escapedEnd,
+                        'gi'
+                    );
+                    const matches = allText.match(ladderPattern);
+                    if (matches && matches[0]) {
+                        // Extract words from the match
+                        const words = matches[0]
+                            .split(/\s+/)
+                            .map(w => w.trim().toUpperCase())
+                            .filter(w => w.length >= 2 && /^[A-Z\s']+$/.test(w));
                         
-                        if (uniqueWords.length >= 2) {
-                            data.solution = uniqueWords;
+                        if (words.length >= 2) {
+                            solutionWords.push(...words);
                         }
                     }
                 }
-                
-                // If still no solution, create empty array with proper length
-                if (data.solution.length === 0) {
-                    // Look for ladder length indicator like "(6)"
-                    const lengthMatch = textContent.match(/\((\d+)\)/);
-                    if (lengthMatch) {
-                        const steps = parseInt(lengthMatch[1]);
-                        data.solution = new Array(steps + 1).fill('');
-                        if (data.start) data.solution[0] = data.start;
-                        if (data.end) data.solution[steps] = data.end;
+            }
+            
+            // Method 4: Extract from any visible text elements that look like ladder words
+            if (solutionWords.length < 2) {
+                const elements = Array.from(document.querySelectorAll('div, span, p'));
+                elements.forEach(el => {
+                    const text = el.textContent?.trim().toUpperCase();
+                    if (text && 
+                        text.length >= data.start?.length && 
+                        text.length <= (data.start?.length || 0) + 5 &&
+                        /^[A-Z\s']+$/.test(text) &&
+                        text !== data.start && 
+                        text !== data.end) {
+                        // Check if it's a single word (not a sentence)
+                        if (!text.includes('.') && !text.includes(',') && text.split(/\s+/).length <= 3) {
+                            solutionWords.push(text);
+                        }
                     }
+                });
+            }
+            
+            // Clean up and deduplicate
+            if (solutionWords.length >= 2) {
+                // Remove duplicates while preserving order
+                const seen = new Set();
+                data.solution = solutionWords.filter(word => {
+                    if (seen.has(word)) return false;
+                    seen.add(word);
+                    return true;
+                });
+            } else {
+                // Create empty solution array with proper length from ladder indicator
+                const lengthMatch = fullText.match(/\((\d+)\)/);
+                if (lengthMatch) {
+                    const steps = parseInt(lengthMatch[1]);
+                    data.solution = new Array(steps + 1).fill('');
+                    if (data.start) data.solution[0] = data.start;
+                    if (data.end) data.solution[steps] = data.end;
+                } else {
+                    data.solution = [];
                 }
             }
             
