@@ -24,21 +24,21 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --production
 
-# Copy scraper scripts
-COPY daily-scraper.js /app/
-COPY scraper.js /app/
-COPY merge-puzzles.js /app/
-COPY custom-puzzles.json /app/
+# Copy scraper scripts and data
+COPY scripts/daily-scraper.js /app/
+COPY scripts/scraper.js /app/
+COPY scripts/merge-puzzles.js /app/
+COPY data/custom-puzzles.json /app/
 
 # Copy all static files to Caddy's default serving directory
-COPY index.html /usr/share/caddy/index.html.tmp
-COPY archive.html /usr/share/caddy/
-COPY styles.css /usr/share/caddy/
-COPY archive-styles.css /usr/share/caddy/
-COPY script.js /usr/share/caddy/
-COPY archive-script.js /usr/share/caddy/
-COPY cat-climber-logo.png /usr/share/caddy/
-COPY collected-puzzles.json /usr/share/caddy/
+COPY public/index.html /usr/share/caddy/index.html.tmp
+COPY public/archive.html /usr/share/caddy/
+COPY public/styles.css /usr/share/caddy/
+COPY public/archive-styles.css /usr/share/caddy/
+COPY public/script.js /usr/share/caddy/
+COPY public/archive-script.js /usr/share/caddy/
+COPY public/cat-climber-logo.png /usr/share/caddy/
+COPY data/collected-puzzles.json /usr/share/caddy/
 COPY Caddyfile /etc/caddy/Caddyfile
 
 # Version argument - placed here to maximize cache usage for expensive operations above
