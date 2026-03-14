@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Merge custom and scraped puzzles intelligently
- * Priority: scraped puzzles (raddle.quest) override custom puzzles for the same date
- * Custom puzzles fill gaps in the scraped data
+ * Merge custom and scraped puzzles - keeping BOTH for duplicate dates
+ * When a date has both scraped and custom puzzles, both are included
+ * Scraped puzzles appear first, followed by custom variants
  */
 
 const fs = require('fs');
@@ -30,41 +30,47 @@ function main() {
     console.log(`Loaded ${scrapedData.puzzles?.length || 0} scraped puzzles`);
     console.log(`Loaded ${customData.puzzles?.length || 0} custom puzzles`);
     
-    // Create a map for quick lookups
-   const puzzlesByDate = new Map();
+    // Combine all puzzles - keep both scraped and custom for same dates
+    const allPuzzles = [];
     
-    // Add custom puzzles first (lower priority)
+    // Add custom puzzles with source tag
     if (customData.puzzles) {
         customData.puzzles.forEach(puzzle => {
-            const normalized = normalizeDate(puzzle.date);
-            puzzlesByDate.set(normalized, {
+            allPuzzles.push({
                 ...puzzle,
                 source: 'custom'
             });
         });
     }
     
-    // Add scraped puzzles (higher priority - will override custom)
+    // Add scraped puzzles with source tag
     if (scrapedData.puzzles) {
         scrapedData.puzzles.forEach(puzzle => {
-            const normalized = normalizeDate(puzzle.date);
             // Normalize old source values
             let source = puzzle.source || 'scraped';
             if (source === 'upstream') source = 'scraped';
             if (source === 'local') source = 'custom';
             
-            puzzlesByDate.set(normalized, {
+            allPuzzles.push({
                 ...puzzle,
                 source: source
             });
         });
     }
     
-    // Convert back to array and sort by date
-    const allPuzzles = Array.from(puzzlesByDate.values()).sort((a, b) => {
+    // Sort by date, then by source (scraped first, then custom)
+    allPuzzles.sort((a, b) => {
         const dateA = new Date(a.date);
         const dateB = new Date(b.date);
-        return dateA - dateB;
+        const dateDiff = dateA - dateB;
+        
+        // If same date, put scraped before custom
+        if (dateDiff === 0) {
+            if (a.source === 'scraped' && b.source === 'custom') return -1;
+            if (a.source === 'custom' && b.source === 'scraped') return 1;
+        }
+        
+        return dateDiff;
     });
     
     const result = {
@@ -78,10 +84,19 @@ function main() {
     const scrapedCount = allPuzzles.filter(p => p.source === 'scraped' || !p.source).length;
     const customCount = allPuzzles.filter(p => p.source === 'custom').length;
     
+    // Count duplicates (same date, different sources)
+    const dateCount = new Map();
+    allPuzzles.forEach(p => {
+        const norm = normalizeDate(p.date);
+        dateCount.set(norm, (dateCount.get(norm) || 0) + 1);
+    });
+    const duplicates = Array.from(dateCount.values()).filter(count => count > 1).length;
+    
     console.log(`\nMerge complete:`);
     console.log(`  Total puzzles: ${result.count}`);
     console.log(`  Scraped (raddle.quest): ${scrapedCount}`);
     console.log(`  Custom: ${customCount}`);
+    console.log(`  Dates with both variants: ${duplicates}`);
     console.log(`  Saved to collected-puzzles.json`);
 }
 

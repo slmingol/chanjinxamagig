@@ -2,26 +2,31 @@
 
 This project combines **scraped puzzles** from raddle.quest with **custom puzzles** you create.
 
+**For overlapping dates: BOTH puzzles are included!** Players can choose which variant to play.
+
 ## Files
 
 - `custom-puzzles.json` - Your handcrafted custom puzzles (15 puzzles)
 - `collected-puzzles.json` - Merged collection of scraped + custom puzzles
-- `merge-puzzles.js` - Intelligent merge script
+- `merge-puzzles.js` - Merge script (keeps both for duplicate dates)
 - `daily-scraper.js` - Daily cron job that scrapes and merges
 
 ## How It Works
 
-1. **Priority System**: Scraped puzzles (raddle.quest) take priority over custom puzzles for the same date
-2. **Gap Filling**: Custom puzzles fill dates where no scraped puzzle exists
+1. **No Override**: Both scraped and custom puzzles are kept for the same date
+2. **Ordering**: Scraped puzzles appear first, followed by custom variants
 3. **Automatic Merging**: Daily scraper runs merge automatically after adding new puzzles
 
 ## Current Status
 
-- **Total puzzles**: 382
+- **Total puzzles**: 393
 - **Scraped** (from raddle.quest): 378
-- **Custom** (your puzzles): 4 active (11 overridden by scraped data)
+- **Custom** (your puzzles): 15 active
+- **Dates with both variants**: 6 dates have multiple puzzle options
 
-### Custom Puzzles in Use
+### Dates with Multiple Variants
+
+Dates where players can choose between scraped and custom puzzles.
 
 - March 11, 2026: MEAT → tACO (Food)
 - March 14, 2026: BLUE → PINK (Colors)  
