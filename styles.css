@@ -550,17 +550,22 @@ header {
 }
 
 .clue {
-    padding: 2px 6px;
-    background: var(--bg-button);
+    padding: 6px 4px 3px 4px;
+    background: rgba(55, 48, 163, 0.6);
     border: 1px solid var(--border-secondary);
     border-radius: 4px;
     font-size: 17px;
     line-height: 1.5;
     cursor: pointer;
     transition: all 0.2s ease;
-    color: var(--text-primary);
+    color: rgba(243, 244, 246, 1);
     font-family: "chivo-mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-weight: 200;
+}
+
+[data-theme="light"] .clue {
+    background: rgba(187, 247, 208, 0.7);
+    color: #1a1a1a;
 }
 
 .clue:hover {
