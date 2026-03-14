@@ -544,7 +544,7 @@ function renderPuzzle() {
         puzzleDateEl.textContent = currentPuzzle.date;
     }
     
-    puzzleNumberTextEl.textContent = `#${currentPuzzleIndex + 1}`;
+    puzzleNumberTextEl.textContent = `Cat Climber: #${currentPuzzleIndex + 1}`;
     puzzleThemeTextEl.textContent = currentPuzzle.theme;
     
     // Render ladder
