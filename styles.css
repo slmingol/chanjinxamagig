@@ -310,7 +310,7 @@ header {
 
 .puzzle-main {
     display: grid;
-    grid-template-columns: 445px 675px;
+    grid-template-columns: 423px 743px;
     gap: 40px;
     margin-bottom: 40px;
 }
@@ -324,7 +324,7 @@ header {
 .ladder-container {
     position: relative;
     width: 100%;
-    max-width: 445px;
+    max-width: 423px;
 }
 
 .letter-count-indicator {
@@ -348,7 +348,7 @@ header {
     gap: 0;
     margin-bottom: 20px;
     width: 100%;
-    max-width: 445px;
+    max-width: 423px;
     border-left: 5px solid var(--border-secondary);
     border-right: 5px solid var(--border-secondary);
     padding-top: 30px;
