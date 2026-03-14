@@ -11,7 +11,7 @@ function getSystemTheme() {
 }
 
 function getCurrentTheme() {
-    const savedTheme = localStorage.getItem('catclimber-theme') || 'system';
+    const savedTheme = localStorage.getItem('cat-climber-theme') || 'system';
     if (savedTheme === 'system') {
         return getSystemTheme();
     }
@@ -19,13 +19,13 @@ function getCurrentTheme() {
 }
 
 function getThemePreference() {
-    return localStorage.getItem('catclimber-theme') || 'system';
+    return localStorage.getItem('cat-climber-theme') || 'system';
 }
 
 function setTheme(theme) {
     const actualTheme = theme === 'system' ? getSystemTheme() : theme;
     document.documentElement.setAttribute('data-theme', actualTheme);
-    localStorage.setItem('catclimber-theme', theme);
+    localStorage.setItem('cat-climber-theme', theme);
     updateThemeButton();
 }
 
@@ -340,7 +340,7 @@ let gameStats = {
 
 // Load stats from localStorage
 function loadStats() {
-    const saved = localStorage.getItem('catclimber-stats');
+    const saved = localStorage.getItem('cat-climber-stats');
     if (saved) {
         gameStats = { ...gameStats, ...JSON.parse(saved) };
     }
@@ -348,7 +348,7 @@ function loadStats() {
 
 // Save stats to localStorage
 function saveStats() {
-    localStorage.setItem('catclimber-stats', JSON.stringify(gameStats));
+    localStorage.setItem('cat-climber-stats', JSON.stringify(gameStats));
 }
 
 // Update a stat
@@ -397,14 +397,14 @@ function saveGameState() {
         lockedWords: Array.from(lockedWords), // Convert Set to Array for JSON
         lastSaved: new Date().toISOString()
     };
-    localStorage.setItem('catclimber-game-state', JSON.stringify(state));
+    localStorage.setItem('cat-climber-game-state', JSON.stringify(state));
     gameStats.lastPlayed = new Date().toISOString();
     saveStats();
 }
 
 // Load game state
 function loadGameState() {
-    const saved = localStorage.getItem('catclimber-game-state');
+    const saved = localStorage.getItem('cat-climber-game-state');
     if (saved) {
         try {
             const state = JSON.parse(saved);
@@ -464,7 +464,7 @@ function resetStats() {
             lastPlayed: null
         };
         saveStats();
-        localStorage.removeItem('catclimber-game-state');
+        localStorage.removeItem('cat-climber-game-state');
         displayStats();
         alert('Statistics reset successfully!');
     }
@@ -1386,7 +1386,7 @@ window.addEventListener('click', (e) => {
 
 // Welcome Modal functions
 function checkFirstVisit() {
-    const hasVisited = localStorage.getItem('catclimber-visited');
+    const hasVisited = localStorage.getItem('cat-climber-visited');
     if (!hasVisited) {
         // Show welcome modal on first visit
         setTimeout(() => {
@@ -1398,7 +1398,7 @@ function checkFirstVisit() {
 function closeWelcomeModal() {
     const dontShow = dontShowWelcomeCheckbox.checked;
     if (dontShow) {
-        localStorage.setItem('catclimber-visited', 'true');
+        localStorage.setItem('cat-climber-visited', 'true');
     }
     welcomeModal.style.display = 'none';
 }

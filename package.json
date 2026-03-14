@@ -1,5 +1,5 @@
 {
-  "name": "catclimber",
+  "name": "cat-climber",
   "version": "1.0.1",
   "description": "Word ladder puzzle game with automatic daily puzzle collection",
   "main": "script.js",

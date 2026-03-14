@@ -124,7 +124,7 @@ The application version is displayed in the lower right corner of the web UI (tr
 ## �📁 Project Structure
 
 ```text
-catclimber/
+cat-climber/
 ├── .github/
 │   └── workflows/
 │       └── docker-build.yml     # Docker build & publish CI/CD
