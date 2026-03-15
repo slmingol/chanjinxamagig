@@ -643,6 +643,15 @@ function getTransformationFromClue(clue) {
         return 'reversed';
     }
     
+    // Drop/remove letter
+    if (lower.includes('drop') || lower.includes('remove')) {
+        const letterMatch = lower.match(/(?:drop|remove) (?:a |an |the )?([a-z])/i);
+        if (letterMatch) {
+            return `-${letterMatch[1].toUpperCase()}`;
+        }
+        return 'drop letter';
+    }
+    
     // Add letter + anagram
     const addAnagramMatch = lower.match(/add (?:a |an )?([a-z]).*anagram/i);
     if (addAnagramMatch) {
@@ -661,20 +670,14 @@ function getTransformationFromClue(clue) {
         return `+${addMatch[1].toUpperCase()}`;
     }
     
-    // Remove letter
-    const removeMatch = lower.match(/remove (?:a |an |the )?([a-z])/i);
-    if (removeMatch) {
-        return `-${removeMatch[1].toUpperCase()}`;
-    }
-    
     // Change letter X to Y + anagram
-    const changeAnagramMatch = lower.match(/change (?:the )?(?:first |last )?(?:letter )?(?:of )?(?:\^ )?(?:to )?(?:a |an )?([a-z]).*(?:to|with) (?:a |an )?([a-z]).*anagram/i);
+    const changeAnagramMatch = lower.match(/change (?:the )?(?:first |last )?(?:one )?(?:letter )?(?:in )?(?:of )?(?:\^ )?(?:to )?(?:a |an )?([a-z]).*(?:to|with|→) (?:a |an )?([a-z]).*anagram/i);
     if (changeAnagramMatch) {
         return `${changeAnagramMatch[1].toUpperCase()}→${changeAnagramMatch[2].toUpperCase()}, then anagram`;
     }
     
     // Change letter X to Y (simple substitution)
-    const changeMatch = lower.match(/change (?:the )?(?:first |last )?(?:letter )?(?:of )?(?:\^ )?(?:to )?(?:a |an )?([a-z]).*(?:to|with) (?:a |an )?([a-z])/i);
+    const changeMatch = lower.match(/change (?:the )?(?:first |last )?(?:one )?(?:letter )?(?:in )?(?:of )?(?:\^ )?(?:to )?(?:a |an )?([a-z]).*(?:to|with|→) (?:a |an )?([a-z])/i);
     if (changeMatch) {
         return `${changeMatch[1].toUpperCase()}→${changeMatch[2].toUpperCase()}`;
     }
@@ -693,7 +696,7 @@ function getTransformationFromClue(clue) {
     
     // Compound words or phrases (contains "___")
     if (clue.includes('___') || lower.includes('precedes') || lower.includes('follows')) {
-        return '⋯';
+        return ''; // Return empty to trigger smart fallback
     }
     
     // Symbol/abbreviation
@@ -701,18 +704,45 @@ function getTransformationFromClue(clue) {
         return 'symbol';
     }
     
-    // Default: show ellipsis for complex transformations
-    return '⋯';
+    // Return empty to trigger smart fallback instead of default ellipsis
+    return '';
 }
 
 // Helper function to find letter change between two words
 function getLetterChange(word1, word2) {
-    if (!word1 || !word2 || word1.length !== word2.length) return '';
+    if (!word1 || !word2) return '';
+    
+    // Different lengths - find what was added or removed
+    if (word1.length !== word2.length) {
+        if (word1.length < word2.length) {
+            // Letter(s) added
+            // Try to find which letter was added
+            for (let i = 0; i < word2.length; i++) {
+                const without = word2.slice(0, i) + word2.slice(i + 1);
+                if (without === word1) {
+                    return `+${word2[i]}`;
+                }
+            }
+            return `+${word2.length - word1.length} letter${word2.length - word1.length > 1 ? 's' : ''}`;
+        } else {
+            // Letter(s) removed
+            for (let i = 0; i < word1.length; i++) {
+                const without = word1.slice(0, i) + word1.slice(i + 1);
+                if (without === word2) {
+                    return `-${word1[i]}`;
+                }
+            }
+            return `-${word1.length - word2.length} letter${word1.length - word2.length > 1 ? 's' : ''}`;
+        }
+    }
+    
+    // Same length - find substitution
     for (let i = 0; i < word1.length; i++) {
         if (word1[i] !== word2[i]) {
             return `${word1[i]}→${word2[i]}`;
         }
     }
+    
     return '';
 }
 
@@ -938,13 +968,16 @@ function updateLetterChangeBoxes(completedIndex) {
                 
                 if (clueIndex >= 0 && clueIndex < currentPuzzle.clues.length) {
                     transformText = getTransformationFromClue(currentPuzzle.clues[clueIndex]);
-                } else {
-                    // Fallback: calculate letter change for same-length words
-                    if (prevWord.length === currentWord.length) {
-                        transformText = getLetterChange(prevWord, currentWord);
-                    } else {
-                        transformText = '⋯';
-                    }
+                }
+                
+                // If no transformation found from clue, calculate from words
+                if (!transformText) {
+                    transformText = getLetterChange(prevWord, currentWord);
+                }
+                
+                // If still no transformation and words are very different, show ellipsis
+                if (!transformText) {
+                    transformText = '⋯';
                 }
                 
                 if (transformText) {
@@ -980,13 +1013,16 @@ function updateLetterChangeBoxes(completedIndex) {
                 
                 if (clueIndex >= 0 && clueIndex < currentPuzzle.clues.length) {
                     transformText = getTransformationFromClue(currentPuzzle.clues[clueIndex]);
-                } else {
-                    // Fallback: calculate letter change for same-length words
-                    if (currentWord.length === nextWord.length) {
-                        transformText = getLetterChange(currentWord, nextWord);
-                    } else {
-                        transformText = '⋯';
-                    }
+                }
+                
+                // If no transformation found from clue, calculate from words
+                if (!transformText) {
+                    transformText = getLetterChange(currentWord, nextWord);
+                }
+                
+                // If still no transformation and words are very different, show ellipsis
+                if (!transformText) {
+                    transformText = '⋯';
                 }
                 
                 if (transformText) {
@@ -1223,15 +1259,17 @@ function renderLadder() {
                 let transformText = '';
                 
                 if (clueIndex >= 0 && clueIndex < currentPuzzle.clues.length) {
-                    // Extract transformation from clue
                     transformText = getTransformationFromClue(currentPuzzle.clues[clueIndex]);
-                } else {
-                    // Fallback: calculate letter change for same-length words
-                    if (currentWord.length === nextWord.length) {
-                        transformText = getLetterChange(currentWord, nextWord);
-                    } else {
-                        transformText = '⋯';
-                    }
+                }
+                
+                // If no transformation found from clue, calculate from words
+                if (!transformText) {
+                    transformText = getLetterChange(currentWord, nextWord);
+                }
+                
+                // If still no transformation and words are very different, show ellipsis
+                if (!transformText) {
+                    transformText = '⋯';
                 }
                 
                 if (transformText) {
