@@ -1533,8 +1533,8 @@ function showResult(success) {
         incrementStat('totalHints', hintsUsed.length);
         
         // Switch clues to ordered display and update headers
-        cluesHeading.textContent = 'Clues, in order';
-        usedCluesHeading.textContent = 'Clues, in order';
+        cluesHeading.textContent = 'CLUES, IN ORDER';
+        usedCluesHeading.textContent = 'CLUES, IN ORDER';
         
         // Clear shuffled order to trigger ordered display
         shuffledCluesOrder = [];
