@@ -1084,34 +1084,36 @@ function renderLadder() {
                 // End word is always revealed
                 currentWord = currentPuzzle.solution[index];
             } else {
-                // Middle word - check if user has filled it AND it matches solution
+                // Middle word - check if user has filled it (don't need to verify correctness for box display)
                 const userWord = userSolution[index];
-                if (userWord && userWord.trim() !== '' && userWord.toUpperCase() === currentPuzzle.solution[index].toUpperCase()) {
-                    currentWord = currentPuzzle.solution[index]; // Use solution word for consistency
+                if (userWord && userWord.trim() !== '' && userWord.length === currentPuzzle.solution[index].length) {
+                    // Use solution word for the letter change calculation
+                    currentWord = currentPuzzle.solution[index];
                 }
             }
             
-            // Always use solution for next word (no need to check if revealed)
-            const nextWord = currentPuzzle.solution[nextIndex];
-            
-            // Old code that checked if next word was revealed - removing this check
-            // We now show transition box as soon as current word is complete
-            /*
+            // Determine if next word is filled (for adjacent box logic)
+            let nextWord = null;
             if (nextIndex === 0) {
-                // Start word is always revealed
                 nextWord = currentPuzzle.solution[0];
             } else if (nextIndex === currentPuzzle.solution.length - 1) {
-                // End word is always revealed
                 nextWord = currentPuzzle.solution[nextIndex];
-            } */
+            } else {
+                // Check if next word is filled
+                const userNextWord = userSolution[nextIndex];
+                if (userNextWord && userNextWord.trim() !== '' && userNextWord.length === currentPuzzle.solution[nextIndex].length) {
+                    nextWord = currentPuzzle.solution[nextIndex];
+                }
+            }
             
-            // Add transition box if current word is revealed
+            // Add transition box if BOTH current word and next word are filled and same length
             if (currentWord && nextWord && currentWord.length === nextWord.length) {
                 const change = getLetterChange(currentWord, nextWord);
                 if (change) {
                     const changeBox = document.createElement('div');
                     changeBox.className = 'letter-change-box';
                     changeBox.textContent = change;
+                    changeBox.style.cssText = 'display: block !important; visibility: visible !important;';
                     stepDiv.appendChild(changeBox);
                 }
             }
