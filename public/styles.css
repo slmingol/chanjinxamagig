@@ -647,6 +647,23 @@ header {
     color: var(--text-tertiary);
 }
 
+/* Completion clues - displayed after game is won */
+.clue-completion {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    border-bottom: 1px solid var(--border-primary) !important;
+    opacity: 1 !important;
+    color: var(--text-primary) !important;
+    cursor: default !important;
+    padding: 12px 8px !important;
+}
+
+.clue-completion:hover {
+    background: transparent !important;
+    color: var(--text-primary) !important;
+}
+
 /* About Section */
 .about-section {
     margin-top: 32px;

@@ -1534,26 +1534,25 @@ function showResult(success) {
         
         // Switch clues to ordered display and update headers
         cluesHeading.textContent = 'CLUES, IN ORDER';
-        usedCluesHeading.textContent = 'CLUES, IN ORDER';
+        usedCluesHeading.style.display = 'none';
         
         // Clear shuffled order to trigger ordered display
         shuffledCluesOrder = [];
         
-        // Re-render clues in order with all moved to used section
+        // Re-render clues in order in main clues section with completion styling
         cluesEl.innerHTML = '';
         usedCluesEl.innerHTML = '';
-        usedCluesHeading.style.display = 'block';
         
         currentPuzzle.clues.forEach(clue => {
             const clueDiv = document.createElement('div');
-            clueDiv.className = 'clue';
+            clueDiv.className = 'clue clue-completion';
             clueDiv.dataset.originalClue = clue;
             
             // Process clue to show all revealed words
             const displayClue = processClue(clue);
             clueDiv.innerHTML = displayClue;
             
-            usedCluesEl.appendChild(clueDiv);
+            cluesEl.appendChild(clueDiv);
         });
         
         // Calculate completion percentage (hints used / total middle words)
