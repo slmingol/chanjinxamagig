@@ -519,12 +519,20 @@ header {
 }
 
 .letter-change {
+    position: absolute !important;
+    left: 50%;
+    bottom: 0;
+    transform: translate(-50%, 50%);
     font-size: 12px;
     color: var(--text-tertiary);
     text-align: center;
-    padding: 4px 0;
     font-family: "chivo-mono", ui-monospace, monospace;
     font-weight: 400;
+    z-index: 100;
+    pointer-events: none;
+    white-space: nowrap;
+    display: block !important;
+    flex: none !important;
 }
 
 .letter-change-box {
