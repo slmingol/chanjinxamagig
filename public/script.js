@@ -696,12 +696,28 @@ function updateAfterWordCompletion(completedIndex) {
     // Update letter change boxes around the completed word
     updateLetterChangeBoxes(completedIndex);
     
-    // Add hint buttons to adjacent rungs that are now accessible
+    // Add hint buttons and enable inputs for adjacent rungs that are now accessible
     updateAdjacentHintButtons(completedIndex);
     
     // If mobile, also update progressive reveal
     if (isMobileView()) {
         updateMobileProgressiveReveal(completedIndex);
+    }
+    
+    // Check if all words are now filled (for victory check)
+    let allFilled = true;
+    for (let i = 1; i < currentPuzzle.solution.length - 1; i++) {
+        if (!userSolution[i] || userSolution[i].trim() === '') {
+            allFilled = false;
+            break;
+        }
+    }
+    
+    // If all words filled, trigger victory check
+    if (allFilled) {
+        setTimeout(() => {
+            checkSolution();
+        }, 300);
     }
 }
 
@@ -744,8 +760,8 @@ function updateMobileProgressiveReveal(completedIndex) {
 function updateAdjacentHintButtons(completedIndex) {
     const totalRungs = currentPuzzle.solution.length;
     
-    // Helper to add hint button to a specific index
-    const addHintButton = (targetIndex) => {
+    // Helper to add hint button and enable input for a specific index
+    const addHintButtonAndEnableInput = (targetIndex) => {
         const targetStep = document.querySelector(`.ladder-step[data-index="${targetIndex}"]`);
         if (!targetStep) return;
         
@@ -753,7 +769,17 @@ function updateAdjacentHintButtons(completedIndex) {
         const isTargetFilled = targetWord && targetWord.trim() !== '';
         const hasHintBtn = targetStep.querySelector('.hint-btn');
         
-        // Only add if the rung is not filled and doesn't already have a hint button
+        // Find the input element
+        const input = targetStep.querySelector('input');
+        
+        // Enable the input if it's currently disabled and not already filled
+        if (input && input.disabled && !isTargetFilled) {
+            input.disabled = false;
+            input.style.opacity = '1';
+            input.style.cursor = 'text';
+        }
+        
+        // Only add hint button if the rung is not filled and doesn't already have one
         if (!isTargetFilled && !hasHintBtn) {
             const hintBtn = document.createElement('button');
             hintBtn.className = 'hint-btn';
@@ -771,13 +797,13 @@ function updateAdjacentHintButtons(completedIndex) {
     // Check previous word (above the completed word)
     const prevIndex = completedIndex - 1;
     if (prevIndex > 0 && prevIndex < totalRungs - 1) {
-        addHintButton(prevIndex);
+        addHintButtonAndEnableInput(prevIndex);
     }
     
     // Check next word (below the completed word)
     const nextIndex = completedIndex + 1;
     if (nextIndex > 0 && nextIndex < totalRungs - 1) {
-        addHintButton(nextIndex);
+        addHintButtonAndEnableInput(nextIndex);
     }
 }
 
@@ -1038,14 +1064,38 @@ function renderLadder() {
         
         ladderEl.appendChild(stepDiv);
         
-        // Add letter change box on the bottom border (rung) if the next word is solved
+        // Add letter change box on the bottom border (rung) if the next word is revealed
         if (index < currentPuzzle.solution.length - 1) {
             const nextIndex = index + 1;
-            const currentWord = userSolution[index] || currentPuzzle.solution[index];
-            const nextWord = userSolution[nextIndex];
-            const isNextWordSolved = nextWord && nextWord.toUpperCase() === currentPuzzle.solution[nextIndex].toUpperCase();
             
-            if (isNextWordSolved && currentWord && nextWord && currentWord.length === nextWord.length) {
+            // Get current word (always available for start/end, user-entered for middle)
+            let currentWord = null;
+            if (index === 0) {
+                currentWord = currentPuzzle.solution[0];  // Start word always visible
+            } else if (index === currentPuzzle.solution.length - 1) {
+                currentWord = currentPuzzle.solution[index];  // End word always visible
+            } else {
+                // Middle word - use user's entry if it matches the solution
+                const userWord = userSolution[index];
+                if (userWord && userWord.toUpperCase() === currentPuzzle.solution[index].toUpperCase()) {
+                    currentWord = userWord.toUpperCase();
+                }
+            }
+            
+            // Get next word (always available for end, user-entered for middle)
+            let nextWord = null;
+            if (nextIndex === currentPuzzle.solution.length - 1) {
+                nextWord = currentPuzzle.solution[nextIndex];  // End word always visible
+            } else {
+                // Middle word - use user's entry if it matches the solution
+                const userWord = userSolution[nextIndex];
+                if (userWord && userWord.toUpperCase() === currentPuzzle.solution[nextIndex].toUpperCase()) {
+                    nextWord = userWord.toUpperCase();
+                }
+            }
+            
+            // Add transition box if both words are revealed
+            if (currentWord && nextWord && currentWord.length === nextWord.length) {
                 const change = getLetterChange(currentWord.toUpperCase(), nextWord.toUpperCase());
                 if (change) {
                     const changeBox = document.createElement('div');
@@ -1486,6 +1536,34 @@ function showResult(success) {
         }
         pathEmojis += '🟢'; // End
         
+        // Build ordered clues with their matching words
+        let cluesListHTML = '<div style="margin-top: 24px; text-align: left; padding: 0 16px;">';
+        cluesListHTML += `<div style="font-size: 16px; font-weight: 600; margin-bottom: 12px; text-align: center;">Solution Path:</div>`;
+        
+        // Start word
+        cluesListHTML += `<div style="margin-bottom: 8px; font-size: 15px;">`;
+        cluesListHTML += `<span style="font-weight: 700; color: var(--success-color);">${currentPuzzle.solution[0]}</span>`;
+        cluesListHTML += `</div>`;
+        
+        // Each clue with its target word
+        for (let i = 0; i < currentPuzzle.clues.length; i++) {
+            const targetWordIndex = i + 1;
+            const targetWord = currentPuzzle.solution[targetWordIndex];
+            const usedHint = hintsUsed.includes(targetWordIndex);
+            const hintEmoji = usedHint ? '💡 ' : '';
+            
+            cluesListHTML += `<div style="margin-bottom: 12px; padding: 8px; background: var(--bg-input); border-left: 3px solid ${usedHint ? 'var(--accent-color)' : 'var(--success-color)'}; border-radius: 4px;">`;
+            cluesListHTML += `<div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">${currentPuzzle.clues[i]}</div>`;
+            cluesListHTML += `<div style="font-size: 15px; font-weight: 700; color: var(--text-primary);">${hintEmoji}↓ ${targetWord}</div>`;
+            cluesListHTML += `</div>`;
+        }
+        
+        // End word
+        cluesListHTML += `<div style="margin-top: 8px; font-size: 15px;">`;
+        cluesListHTML += `<span style="font-weight: 700; color: var(--success-color);">${currentPuzzle.solution[currentPuzzle.solution.length - 1]}</span>`;
+        cluesListHTML += `</div>`;
+        cluesListHTML += `</div>`;
+        
         victoryContent.innerHTML = `
             <div style="font-size: 20px; font-weight: 700; margin-bottom: 12px;">
                 Time to 💨 skeedaddle (${percentNoHints}%)
@@ -1496,6 +1574,7 @@ function showResult(success) {
             <button onclick="copyResults()" style="padding: 10px 20px; background: rgba(100,150,200,0.3); border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; color: #fff; cursor: pointer; font-size: 15px; font-weight: 600; transition: all 0.2s;">
                 📋 Copy results to clipboard
             </button>
+            ${cluesListHTML}
         `;
         victorySection.style.display = 'block';
     } else {
