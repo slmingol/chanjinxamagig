@@ -646,6 +646,11 @@ function getDescriptiveTextFromClue(clue) {
     
     const lower = clue.toLowerCase();
     
+    // Handle "Anagram" patterns
+    if (lower.startsWith('anagram')) {
+        return 'anagrammed';
+    }
+    
     // Handle "Reverse" pattern
     if (lower.includes('reverse')) {
         return 'reversed';
@@ -654,6 +659,25 @@ function getDescriptiveTextFromClue(clue) {
     // Handle "rival" → "vs"
     if (lower.includes('rival')) {
         return 'vs';
+    }
+    
+    // "^ by [Company/Person]" → "by [name]"
+    const byPattern = /\^\s+by\s+([a-z]+)/i;
+    const byMatch = clue.match(byPattern);
+    if (byMatch) {
+        return `by ${byMatch[1]}`;
+    }
+    
+    // "What a ^ is [verb] with" → "is [verb] with"
+    const whatPattern = /what\s+a?\s+\^\s+is\s+([a-z\s]+)\s+with/i;
+    const whatMatch = clue.match(whatPattern);
+    if (whatMatch) {
+        return `is ${whatMatch[1].trim()} with`;
+    }
+    
+    // "___ ^[,.]" or "^ ___" patterns (contextual clues) → "…"
+    if (/___\s*\^|^\s*\^/.test(clue) || /\^\s*___/.test(clue)) {
+        return '…';
     }
     
     // Extract text like "\"^ of ___\"" → "of"
@@ -681,7 +705,6 @@ function getDescriptiveTextFromClue(clue) {
     }
     
     // For anything else, don't try to extract - return empty to show ellipsis
-    // This includes complex patterns like "one skilled at", "a kind of", etc.
     return '';
 }
 
@@ -702,10 +725,10 @@ function getTransformationFromClue(clue) {
         return ''; // Let getLetterChange calculate it
     }
     
-    // Add letter + anagram
+    // Add letter + anagram  
     const addAnagramMatch = lower.match(/add (?:a |an )?([a-z]).*anagram/i);
     if (addAnagramMatch) {
-        return ''; // Too complex for simple box display
+        return `+${addAnagramMatch[1].toUpperCase()}, then anagram`;
     }
     
     // Insert letter
