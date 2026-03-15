@@ -90,6 +90,15 @@ async function scrapeWithPuppeteer() {
                 data.clues = clueLines;
             }
             
+            // Extract "About this Raddle" note
+            const noteMatch = fullText.match(/About this Raddle\s+([\s\S]*?)(?=About this theme|©|$)/i);
+            if (noteMatch) {
+                data.note = noteMatch[1].trim()
+                    .replace(/\s+/g, ' ')
+                    .replace(/^\s*\n+|\n+\s*$/g, '')
+                    .substring(0, 1000); // Limit to 1000 chars
+            }
+            
             return data;
         });
         
@@ -336,6 +345,15 @@ async function scrapePuzzleByDate(dateStr) {
                     })
                     .map(line => line.replace(new RegExp(data.start, 'g'), '____'));
                 data.clues = clueLines;
+            }
+            
+            // Extract "About this Raddle" note
+            const noteMatch = fullText.match(/About this Raddle\s+([\s\S]*?)(?=About this theme|©|$)/i);
+            if (noteMatch) {
+                data.note = noteMatch[1].trim()
+                    .replace(/\s+/g, ' ')
+                    .replace(/^\s*\n+|\n+\s*$/g, '')
+                    .substring(0, 1000); // Limit to 1000 chars
             }
             
             return data;
