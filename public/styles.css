@@ -519,7 +519,7 @@ header {
 }
 
 .letter-change-box {
-    position: absolute;
+    position: absolute !important;
     left: 50%;
     bottom: -14px;
     transform: translateX(-50%);
@@ -535,6 +535,8 @@ header {
     pointer-events: none;
     box-shadow: 0 2px 8px var(--shadow);
     white-space: nowrap;
+    display: block !important;
+    flex: none !important;
 }
 
 .solve-direction {
