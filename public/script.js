@@ -1765,14 +1765,8 @@ function showResult(success) {
         markPuzzleCompleted(currentPuzzleIndex, hintsUsed.length);
         incrementStat('totalHints', hintsUsed.length);
         
-        // Hide the clues sidebar since clues are now shown in ladder with transition boxes
-        const cluesSection = document.querySelector('.clues-section');
-        if (cluesSection) {
-            cluesSection.style.display = 'none';
-        }
-        
         // Switch clues to ordered display and update headers
-        cluesHeading.textContent = 'CLUES, IN ORDER';
+        cluesHeading.textContent = 'Clues, in order';
         usedCluesHeading.style.display = 'none';
         
         // Clear shuffled order to trigger ordered display
