@@ -691,7 +691,7 @@ function updateMobileProgressiveReveal(completedIndex) {
     
     // Update visibility of all ladder steps
     for (let i = 0; i < totalRungs; i++) {
-        const step = document.querySelector(`[data-index="${i}"]`)?.parentElement;
+        const step = document.querySelector(`.ladder-step[data-index="${i}"]`);
         if (!step) continue;
         
         const shouldBeVisible = visibleRungs.has(i);
@@ -706,7 +706,7 @@ function updateMobileProgressiveReveal(completedIndex) {
     
     // Remove hint button from completed word
     if (completedIndex !== undefined) {
-        const completedStep = document.querySelector(`[data-index="${completedIndex}"]`)?.parentElement;
+        const completedStep = document.querySelector(`.ladder-step[data-index="${completedIndex}"]`);
         if (completedStep) {
             const hintBtn = completedStep.querySelector('.hint-btn');
             if (hintBtn) {
@@ -731,7 +731,7 @@ function updateAdjacentHintButtons(completedIndex) {
     
     // Helper to add hint button to a specific index
     const addHintButton = (targetIndex) => {
-        const targetStep = document.querySelector(`[data-index="${targetIndex}"]`)?.parentElement;
+        const targetStep = document.querySelector(`.ladder-step[data-index="${targetIndex}"]`);
         if (!targetStep) return;
         
         const targetWord = userSolution[targetIndex];
@@ -770,10 +770,28 @@ function updateAdjacentHintButtons(completedIndex) {
 function updateLetterChangeBoxes(completedIndex) {
     const totalRungs = currentPuzzle.solution.length;
     
+    // Helper to get the actual word for a rung (only if it's revealed)
+    const getRevealedWord = (index) => {
+        // Start word (always revealed)
+        if (index === 0) {
+            return currentPuzzle.solution[0];
+        }
+        // End word (always revealed)
+        if (index === totalRungs - 1) {
+            return currentPuzzle.solution[totalRungs - 1];
+        }
+        // Middle word - only return if user has solved it
+        const userWord = userSolution[index];
+        if (userWord && userWord.toUpperCase() === currentPuzzle.solution[index].toUpperCase()) {
+            return userWord.toUpperCase();
+        }
+        return null;
+    };
+    
     // Check letter change box between previous word and completed word
     if (completedIndex > 0) {
         const prevIndex = completedIndex - 1;
-        const prevStep = document.querySelector(`[data-index="${prevIndex}"]`)?.parentElement;
+        const prevStep = document.querySelector(`.ladder-step[data-index="${prevIndex}"]`);
         if (prevStep) {
             // Remove existing letter change box if any
             const existingBox = prevStep.querySelector('.letter-change-box');
@@ -781,13 +799,12 @@ function updateLetterChangeBoxes(completedIndex) {
                 existingBox.remove();
             }
             
-            // Add new letter change box
-            const prevWord = userSolution[prevIndex] || currentPuzzle.solution[prevIndex];
-            const currentWord = userSolution[completedIndex];
-            const isCurrentSolved = currentWord && currentWord.toUpperCase() === currentPuzzle.solution[completedIndex].toUpperCase();
+            // Add new letter change box only if both words are revealed
+            const prevWord = getRevealedWord(prevIndex);
+            const currentWord = getRevealedWord(completedIndex);
             
-            if (isCurrentSolved && prevWord && currentWord && prevWord.length === currentWord.length) {
-                const change = getLetterChange(prevWord.toUpperCase(), currentWord.toUpperCase());
+            if (prevWord && currentWord && prevWord.length === currentWord.length) {
+                const change = getLetterChange(prevWord, currentWord);
                 if (change) {
                     const changeBox = document.createElement('div');
                     changeBox.className = 'letter-change-box';
@@ -801,7 +818,7 @@ function updateLetterChangeBoxes(completedIndex) {
     // Check letter change box between completed word and next word
     if (completedIndex < totalRungs - 1) {
         const nextIndex = completedIndex + 1;
-        const currentStep = document.querySelector(`[data-index="${completedIndex}"]`)?.parentElement;
+        const currentStep = document.querySelector(`.ladder-step[data-index="${completedIndex}"]`);
         if (currentStep) {
             // Remove existing letter change box if any
             const existingBox = currentStep.querySelector('.letter-change-box');
@@ -809,13 +826,12 @@ function updateLetterChangeBoxes(completedIndex) {
                 existingBox.remove();
             }
             
-            // Add new letter change box
-            const currentWord = userSolution[completedIndex];
-            const nextWord = userSolution[nextIndex];
-            const isNextSolved = nextWord && nextWord.toUpperCase() === currentPuzzle.solution[nextIndex].toUpperCase();
+            // Add new letter change box only if both words are revealed
+            const currentWord = getRevealedWord(completedIndex);
+            const nextWord = getRevealedWord(nextIndex);
             
-            if (isNextSolved && currentWord && nextWord && currentWord.length === nextWord.length) {
-                const change = getLetterChange(currentWord.toUpperCase(), nextWord.toUpperCase());
+            if (currentWord && nextWord && currentWord.length === nextWord.length) {
+                const change = getLetterChange(currentWord, nextWord);
                 if (change) {
                     const changeBox = document.createElement('div');
                     changeBox.className = 'letter-change-box';
@@ -847,7 +863,7 @@ function updateHiddenGaps(visibleRungs) {
             gapDiv.innerHTML = `<div class="ladder-hidden-gap-content">${hiddenCount} hidden</div>`;
             
             // Insert gap after the current visible step
-            const currentStep = document.querySelector(`[data-index="${currentVisible}"]`)?.parentElement;
+            const currentStep = document.querySelector(`.ladder-step[data-index="${currentVisible}"]`);
             if (currentStep && currentStep.nextSibling) {
                 currentStep.parentNode.insertBefore(gapDiv, currentStep.nextSibling);
             }
@@ -894,6 +910,7 @@ function renderLadder() {
         
         const stepDiv = document.createElement('div');
         stepDiv.className = 'ladder-step';
+        stepDiv.dataset.index = index; // Add data-index for easy querying
         
         // Hide step on mobile if not in visible set
         if (!isVisible) {
