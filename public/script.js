@@ -1194,9 +1194,9 @@ function processClue(clue) {
 function renderClues() {
     cluesEl.innerHTML = '';
     usedCluesEl.innerHTML = '';
-    shuffled clues order during gameplay, original order after completion
-    const clues = shuffledCluesOrder.length > 0 ? shuffledCluesOrder :al clues order (ladder order) for display
-    const clues = currentPuzzle.clues;
+    
+    // Use shuffled clues order during gameplay, original order after completion
+    const clues = shuffledCluesOrder.length > 0 ? shuffledCluesOrder : currentPuzzle.clues;
     
     clues.forEach(clue => {
         const clueDiv = document.createElement('div');
