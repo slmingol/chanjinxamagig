@@ -872,9 +872,9 @@ function updateLetterChangeBoxes(completedIndex) {
                 existingBox.remove();
             }
             
-            // Add new letter change box only if both words are revealed
+            // Add new letter change box as soon as current word is revealed
             const currentWord = getRevealedWord(completedIndex);
-            const nextWord = getRevealedWord(nextIndex);
+            const nextWord = currentPuzzle.solution[nextIndex]; // Always use solution for next word
             
             if (currentWord && nextWord && currentWord.length === nextWord.length) {
                 const change = getLetterChange(currentWord, nextWord);
@@ -1069,7 +1069,7 @@ function renderLadder() {
         
         ladderEl.appendChild(stepDiv);
         
-        // Add letter change box on the bottom border (rung) if both current and next words are revealed
+        // Add letter change box on the bottom border (rung) if current word is revealed
         if (index < currentPuzzle.solution.length - 1) {
             const nextIndex = index + 1;
             
@@ -1089,23 +1089,21 @@ function renderLadder() {
                 }
             }
             
-            // Determine if next word is revealed
-            let nextWord = null;
+            // Always use solution for next word (no need to check if revealed)
+            const nextWord = currentPuzzle.solution[nextIndex];
+            
+            // Old code that checked if next word was revealed - removing this check
+            // We now show transition box as soon as current word is complete
+            /*
             if (nextIndex === 0) {
                 // Start word is always revealed
                 nextWord = currentPuzzle.solution[0];
             } else if (nextIndex === currentPuzzle.solution.length - 1) {
                 // End word is always revealed
                 nextWord = currentPuzzle.solution[nextIndex];
-            } else {
-                // Middle word - check if user has filled it AND it matches solution
-                const userWord = userSolution[nextIndex];
-                if (userWord && userWord.trim() !== '' && userWord.toUpperCase() === currentPuzzle.solution[nextIndex].toUpperCase()) {
-                    nextWord = currentPuzzle.solution[nextIndex]; // Use solution word for consistency
-                }
-            }
+            } */
             
-            // Add transition box if both words are revealed
+            // Add transition box if current word is revealed
             if (currentWord && nextWord && currentWord.length === nextWord.length) {
                 const change = getLetterChange(currentWord, nextWord);
                 if (change) {
@@ -1570,45 +1568,17 @@ function showResult(success) {
         }
         pathEmojis += '🟢'; // End
         
-        // Build ordered clues with their matching words
-        let cluesListHTML = '<div style="margin-top: 24px; text-align: left; padding: 0 16px;">';
-        cluesListHTML += `<div style="font-size: 16px; font-weight: 600; margin-bottom: 12px; text-align: center;">Solution Path:</div>`;
-        
-        // Start word
-        cluesListHTML += `<div style="margin-bottom: 8px; font-size: 15px;">`;
-        cluesListHTML += `<span style="font-weight: 700; color: var(--success-color);">${currentPuzzle.solution[0]}</span>`;
-        cluesListHTML += `</div>`;
-        
-        // Each clue with its target word
-        for (let i = 0; i < currentPuzzle.clues.length; i++) {
-            const targetWordIndex = i + 1;
-            const targetWord = currentPuzzle.solution[targetWordIndex];
-            const usedHint = hintsUsed.includes(targetWordIndex);
-            const hintEmoji = usedHint ? '💡 ' : '';
-            
-            cluesListHTML += `<div style="margin-bottom: 12px; padding: 8px; background: var(--bg-input); border-left: 3px solid ${usedHint ? 'var(--accent-color)' : 'var(--success-color)'}; border-radius: 4px;">`;
-            cluesListHTML += `<div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">${currentPuzzle.clues[i]}</div>`;
-            cluesListHTML += `<div style="font-size: 15px; font-weight: 700; color: var(--text-primary);">${hintEmoji}↓ ${targetWord}</div>`;
-            cluesListHTML += `</div>`;
-        }
-        
-        // End word
-        cluesListHTML += `<div style="margin-top: 8px; font-size: 15px;">`;
-        cluesListHTML += `<span style="font-weight: 700; color: var(--success-color);">${currentPuzzle.solution[currentPuzzle.solution.length - 1]}</span>`;
-        cluesListHTML += `</div>`;
-        cluesListHTML += `</div>`;
-        
+        // Simplified victory message
         victoryContent.innerHTML = `
-            <div style="font-size: 20px; font-weight: 700; margin-bottom: 12px;">
-                Time to 💨 skeedaddle (${percentNoHints}%)
+            <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--success-color);">
+                ✓ Puzzle Complete
             </div>
-            <div style="font-size: 16px; margin-bottom: 16px; word-break: break-all; letter-spacing: 0.1em;">
-                ${currentPuzzle.start} ${pathEmojis} ${currentPuzzle.end}
+            <div style="font-size: 14px; margin-bottom: 12px; color: var(--text-secondary);">
+                ${currentPuzzle.start} ${pathEmojis} ${currentPuzzle.end} · ${percentNoHints}% solved without hints
             </div>
-            <button onclick="copyResults()" style="padding: 10px 20px; background: rgba(100,150,200,0.3); border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; color: #fff; cursor: pointer; font-size: 15px; font-weight: 600; transition: all 0.2s;">
-                📋 Copy results to clipboard
+            <button onclick="copyResults()" style="padding: 8px 16px; background: var(--bg-button); border: 1px solid var(--border-secondary); border-radius: 6px; color: var(--text-primary); cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s;">
+                📋 Copy results
             </button>
-            ${cluesListHTML}
         `;
         victorySection.style.display = 'block';
     } else {

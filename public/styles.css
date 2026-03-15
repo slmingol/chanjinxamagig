@@ -327,10 +327,11 @@ header {
 
 /* Victory Section */
 .victory-section {
-    background: var(--victory-bg);
-    border: 1px solid var(--victory-border);
-    border-radius: 8px;
-    padding: 20px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--border-secondary);
+    border-radius: 0;
+    padding: 12px 0 20px 0;
     margin-bottom: 20px;
     text-align: center;
 }
@@ -339,7 +340,7 @@ header {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0;
+    gap: 12px;
 }
 
 .victory-content button:hover {
