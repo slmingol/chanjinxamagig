@@ -623,6 +623,79 @@ function focusFirstAvailableInput() {
     }, 0);
 }
 
+// Helper function to extract transformation description from clue
+function getTransformationFromClue(clue) {
+    if (!clue) return '';
+    
+    const lower = clue.toLowerCase();
+    
+    // Reverse
+    if (lower.includes('reverse')) {
+        return 'reversed';
+    }
+    
+    // Add letter + anagram
+    const addAnagramMatch = lower.match(/add (?:a |an )?([a-z]).*anagram/i);
+    if (addAnagramMatch) {
+        return `+${addAnagramMatch[1].toUpperCase()}, then anagram`;
+    }
+    
+    // Insert letter
+    const insertMatch = lower.match(/insert (?:a |an )?([a-z])/i);
+    if (insertMatch) {
+        return `+${insertMatch[1].toUpperCase()}`;
+    }
+    
+    // Add letter (without anagram)
+    const addMatch = lower.match(/add (?:a |an )?([a-z])/i);
+    if (addMatch) {
+        return `+${addMatch[1].toUpperCase()}`;
+    }
+    
+    // Remove letter
+    const removeMatch = lower.match(/remove (?:a |an |the )?([a-z])/i);
+    if (removeMatch) {
+        return `-${removeMatch[1].toUpperCase()}`;
+    }
+    
+    // Change letter X to Y + anagram
+    const changeAnagramMatch = lower.match(/change (?:the )?(?:first |last )?(?:letter )?(?:of )?(?:\^ )?(?:to )?(?:a |an )?([a-z]).*(?:to|with) (?:a |an )?([a-z]).*anagram/i);
+    if (changeAnagramMatch) {
+        return `${changeAnagramMatch[1].toUpperCase()}→${changeAnagramMatch[2].toUpperCase()}, then anagram`;
+    }
+    
+    // Change letter X to Y (simple substitution)
+    const changeMatch = lower.match(/change (?:the )?(?:first |last )?(?:letter )?(?:of )?(?:\^ )?(?:to )?(?:a |an )?([a-z]).*(?:to|with) (?:a |an )?([a-z])/i);
+    if (changeMatch) {
+        return `${changeMatch[1].toUpperCase()}→${changeMatch[2].toUpperCase()}`;
+    }
+    
+    // Possessive (last name, first name, etc)
+    if (lower.includes("'s ")) {
+        if (lower.includes('last name')) return 'last name';
+        if (lower.includes('first name')) return 'first name';
+        return "'s";
+    }
+    
+    // Anagram only
+    if (lower.includes('anagram')) {
+        return 'anagram';
+    }
+    
+    // Compound words or phrases (contains "___")
+    if (clue.includes('___') || lower.includes('precedes') || lower.includes('follows')) {
+        return '⋯';
+    }
+    
+    // Symbol/abbreviation
+    if (lower.includes('symbol for') || lower.includes('abbreviation')) {
+        return 'symbol';
+    }
+    
+    // Default: show ellipsis for complex transformations
+    return '⋯';
+}
+
 // Helper function to find letter change between two words
 function getLetterChange(word1, word2) {
     if (!word1 || !word2 || word1.length !== word2.length) return '';
@@ -849,12 +922,26 @@ function updateLetterChangeBoxes(completedIndex) {
             const prevWord = getRevealedWord(prevIndex);
             const currentWord = getRevealedWord(completedIndex);
             
-            if (prevWord && currentWord && prevWord.length === currentWord.length) {
-                const change = getLetterChange(prevWord, currentWord);
-                if (change) {
+            if (prevWord && currentWord) {
+                // Get the clue for this transition (clue index is for the target word)
+                const clueIndex = completedIndex - 1;
+                let transformText = '';
+                
+                if (clueIndex >= 0 && clueIndex < currentPuzzle.clues.length) {
+                    transformText = getTransformationFromClue(currentPuzzle.clues[clueIndex]);
+                } else {
+                    // Fallback: calculate letter change for same-length words
+                    if (prevWord.length === currentWord.length) {
+                        transformText = getLetterChange(prevWord, currentWord);
+                    } else {
+                        transformText = '⋯';
+                    }
+                }
+                
+                if (transformText) {
                     const changeBox = document.createElement('div');
                     changeBox.className = 'letter-change-box';
-                    changeBox.textContent = change;
+                    changeBox.textContent = transformText;
                     changeBox.style.cssText = 'display: block !important; visibility: visible !important;';
                     prevStep.appendChild(changeBox);
                 }
@@ -877,12 +964,26 @@ function updateLetterChangeBoxes(completedIndex) {
             const currentWord = getRevealedWord(completedIndex);
             const nextWord = currentPuzzle.solution[nextIndex]; // Always use solution
             
-            if (currentWord && nextWord && currentWord.length === nextWord.length) {
-                const change = getLetterChange(currentWord, nextWord);
-                if (change) {
+            if (currentWord && nextWord) {
+                // Get the clue for this transition
+                const clueIndex = nextIndex - 1;
+                let transformText = '';
+                
+                if (clueIndex >= 0 && clueIndex < currentPuzzle.clues.length) {
+                    transformText = getTransformationFromClue(currentPuzzle.clues[clueIndex]);
+                } else {
+                    // Fallback: calculate letter change for same-length words
+                    if (currentWord.length === nextWord.length) {
+                        transformText = getLetterChange(currentWord, nextWord);
+                    } else {
+                        transformText = '⋯';
+                    }
+                }
+                
+                if (transformText) {
                     const changeBox = document.createElement('div');
                     changeBox.className = 'letter-change-box';
-                    changeBox.textContent = change;
+                    changeBox.textContent = transformText;
                     changeBox.style.cssText = 'display: block !important; visibility: visible !important;';
                     currentStep.appendChild(changeBox);
                 }
@@ -1106,13 +1207,28 @@ function renderLadder() {
                 }
             }
             
-            // Add transition box if BOTH current word and next word are filled and same length
-            if (currentWord && nextWord && currentWord.length === nextWord.length) {
-                const change = getLetterChange(currentWord, nextWord);
-                if (change) {
+            // Add transition box if BOTH current word and next word are filled
+            if (currentWord && nextWord) {
+                // Get the clue for this transition (clue index corresponds to the target word)
+                const clueIndex = nextIndex - 1;
+                let transformText = '';
+                
+                if (clueIndex >= 0 && clueIndex < currentPuzzle.clues.length) {
+                    // Extract transformation from clue
+                    transformText = getTransformationFromClue(currentPuzzle.clues[clueIndex]);
+                } else {
+                    // Fallback: calculate letter change for same-length words
+                    if (currentWord.length === nextWord.length) {
+                        transformText = getLetterChange(currentWord, nextWord);
+                    } else {
+                        transformText = '⋯';
+                    }
+                }
+                
+                if (transformText) {
                     const changeBox = document.createElement('div');
                     changeBox.className = 'letter-change-box';
-                    changeBox.textContent = change;
+                    changeBox.textContent = transformText;
                     changeBox.style.cssText = 'display: block !important; visibility: visible !important;';
                     stepDiv.appendChild(changeBox);
                 }
