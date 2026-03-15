@@ -530,8 +530,8 @@ header {
 .letter-change-box {
     position: absolute !important;
     left: 50%;
-    bottom: 0;
-    transform: translate(-50%, 50%);
+    bottom: -8px;
+    transform: translateX(-50%);
     font-size: 12px;
     color: var(--text-primary);
     background: var(--bg-secondary);
