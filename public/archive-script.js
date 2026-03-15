@@ -62,12 +62,85 @@ document.getElementById('theme-btn').addEventListener('click', cycleTheme);
 let allPuzzles = [];
 let filteredPuzzles = [];
 
+// Theme slug to display name mapping
+const THEME_MAP = {
+    'oscars_2025': '2025 Best Picture nominees',
+    'anniversary': 'Raddle\'s 1st Anniversary',
+    'mystery_6': 'Mystery Theme #6',
+    'winter_olympics': 'Winter Olympics',
+    'groundhog': 'Groundhog Day',
+    'wingspan': 'Wingspan Birds',
+    'mlk': 'Martin Luther King, Jr.',
+    'mit': 'MIT Mystery Hunt',
+    'mystery_5': 'Mystery Theme #5',
+    'guest_recs': 'Guest Recommendations',
+    'raddle_300': 'Raddle 300',
+    'hanukkah': 'Hanukkah',
+    'board_games': 'Board Game Gift Guide',
+    'mystery_4': 'Mystery Theme #4',
+    'thanksgiving': 'Thanksgiving 2025',
+    'x_to_y': 'X to Y',
+    '7x7': '7x7',
+    'block_party': 'Block Party',
+    'halloween': 'Halloween Whodunit',
+    'crime': 'Crime Fiction',
+    'catan': 'Settlers of Catan',
+    'noise': 'Make Some Noise',
+    'midwest': 'Midwest Crossword Tournament',
+    'mystery_2': 'Mystery Theme #2',
+    'fall': 'Fall',
+    'chicago': 'Chicago',
+    'mystery_1': 'Mystery Theme #1',
+    'horror': 'Horror Movie Villains',
+    'stones': 'Rolling Stones',
+    'ice_cream': 'Ice Cream',
+    'shakespeare': 'Shakespearean Phrases',
+    'dog_days': 'Dog Days of Summer',
+    'emmy': 'Emmy Nominations 2025',
+    'severance': 'Severance',
+    'superman': 'Superman',
+    'tour_de_france': 'Tour de France',
+    '250_year': '250-Year-Old Creations',
+    'summer_produce': 'Summer Produce',
+    'juneteenth': 'Juneteenth',
+    'daddle': 'Daddle',
+    'pride': 'Pride Month',
+    'eurovision': 'Eurovision',
+    'memorial': 'Memorial Day',
+    'clocktower': 'Blood on the Clocktower',
+    'tony': 'Tony Nominations',
+    'mothers': 'Mother\'s Day',
+    'habemus': 'Habemus Papam',
+    'paul': 'Paul Ruddle',
+    'flowers': 'Flowers',
+    'prince': 'Blue Prince',
+    'passover': 'Passover',
+    'bands': 'Some of My Favorite Bands',
+    'big_ears': 'Big Ears 2025',
+    'enigmarch': 'Enigmarch 2025',
+    'first': 'My First Raddles',
+    'oscars': 'Best Picture nominees'
+};
+
+function getThemeDisplayName(themeSlug) {
+    if (!themeSlug) return 'Uncategorized';
+    return THEME_MAP[themeSlug] || themeSlug.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+}
+
 async function loadPuzzles() {
     try {
         console.log('Loading puzzles...');
         const response = await fetch('/collected-puzzles.json');
         const data = await response.json();
         allPuzzles = data.puzzles || [];
+        
+        // Normalize puzzles: use scrapedDate if date is empty, convert theme slug to display name
+        allPuzzles = allPuzzles.map(puzzle => ({
+            ...puzzle,
+            date: puzzle.date || puzzle.scrapedDate || '',
+            theme: getThemeDisplayName(puzzle.theme)
+        }));
+        
         console.log(`Loaded ${allPuzzles.length} puzzles`);
         
         updateStats();
