@@ -713,10 +713,74 @@ function updateMobileProgressiveReveal(completedIndex) {
                 hintBtn.remove();
             }
         }
+        
+        // Update letter change boxes around the completed word
+        updateLetterChangeBoxes(completedIndex);
     }
     
     // Update hidden gap indicators
     updateHiddenGaps(visibleRungs);
+}
+
+// Update letter change boxes for a completed word
+function updateLetterChangeBoxes(completedIndex) {
+    const totalRungs = currentPuzzle.solution.length;
+    
+    // Check letter change box between previous word and completed word
+    if (completedIndex > 0) {
+        const prevIndex = completedIndex - 1;
+        const prevStep = document.querySelector(`[data-index="${prevIndex}"]`)?.parentElement;
+        if (prevStep) {
+            // Remove existing letter change box if any
+            const existingBox = prevStep.querySelector('.letter-change-box');
+            if (existingBox) {
+                existingBox.remove();
+            }
+            
+            // Add new letter change box
+            const prevWord = userSolution[prevIndex] || currentPuzzle.solution[prevIndex];
+            const currentWord = userSolution[completedIndex];
+            const isCurrentSolved = currentWord && currentWord.toUpperCase() === currentPuzzle.solution[completedIndex].toUpperCase();
+            
+            if (isCurrentSolved && prevWord && currentWord && prevWord.length === currentWord.length) {
+                const change = getLetterChange(prevWord.toUpperCase(), currentWord.toUpperCase());
+                if (change) {
+                    const changeBox = document.createElement('div');
+                    changeBox.className = 'letter-change-box';
+                    changeBox.textContent = change;
+                    prevStep.appendChild(changeBox);
+                }
+            }
+        }
+    }
+    
+    // Check letter change box between completed word and next word
+    if (completedIndex < totalRungs - 1) {
+        const nextIndex = completedIndex + 1;
+        const currentStep = document.querySelector(`[data-index="${completedIndex}"]`)?.parentElement;
+        if (currentStep) {
+            // Remove existing letter change box if any
+            const existingBox = currentStep.querySelector('.letter-change-box');
+            if (existingBox) {
+                existingBox.remove();
+            }
+            
+            // Add new letter change box
+            const currentWord = userSolution[completedIndex];
+            const nextWord = userSolution[nextIndex];
+            const isNextSolved = nextWord && nextWord.toUpperCase() === currentPuzzle.solution[nextIndex].toUpperCase();
+            
+            if (isNextSolved && currentWord && nextWord && currentWord.length === nextWord.length) {
+                const change = getLetterChange(currentWord.toUpperCase(), nextWord.toUpperCase());
+                if (change) {
+                    const changeBox = document.createElement('div');
+                    changeBox.className = 'letter-change-box';
+                    changeBox.textContent = change;
+                    currentStep.appendChild(changeBox);
+                }
+            }
+        }
+    }
 }
 
 // Update hidden gap indicators between visible sections
